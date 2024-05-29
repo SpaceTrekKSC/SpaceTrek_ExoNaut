@@ -65,7 +65,7 @@ inline uint8_t hex2int(uint8_t ch){
 void exonaut::begin(void){
 	pinMode(BUTTON_A_PIN,INPUT);
 	pinMode(BUTTON_B_PIN,INPUT);
-	ets_serial.begin(115200);
+	ets_serial.begin(115200, SERIAL_8N1, 16, 17);
 	delay(100);
 	xTaskCreatePinnedToCore(rx_task, "rx_task", 3072, NULL, 2, &rx_task_handle, 0);
 	//set_motor_speed(0, 0);
@@ -236,8 +236,8 @@ void exonaut::get_encoder_count(float items[]){			//Get the encoder count value 
 	encoder_motor.counter_updated = false;
 	ets_serial.write(buf,5);
 	delay(30);
-	items[0] = (encoder_motor.count_1 - encoder_motor.count_base_1) / encoder_motor.pulse_p_r;
-	items[1] = (encoder_motor.count_2 - encoder_motor.count_base_2) / encoder_motor.pulse_p_r;
+	items[1] = (encoder_motor.count_1 - encoder_motor.count_base_1) / encoder_motor.pulse_p_r;
+	items[0] = (encoder_motor.count_2 - encoder_motor.count_base_2) / encoder_motor.pulse_p_r;
 }
 
 void exonaut::setColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b){

@@ -13,16 +13,11 @@
 #include "ExoNaut_RGB_LED.h"
 #include <Adafruit_NeoPixel.h>
 
-//Adafruit_NeoPixel pixels2();
 Adafruit_NeoPixel pixels2(2, 36, NEO_GRB + NEO_KHZ800);
-
 
 void RGB::begin(uint8_t port){
 	int8_t pin_number;
 	switch(port){
-		//case 1:
-		//	pin_number = 36;
-		//	break;
 		case 2:
 			pin_number = 32;
 			break;
@@ -36,8 +31,6 @@ void RGB::begin(uint8_t port){
 			pin_number = -1;
 			break;
 	}
-	//pixels2.updateType(NEO_GRB + NEO_KHZ800);
-	//pixels2.updateLength(2);
 	pixels2.setPin(pin_number);
 	pixels2.begin();
 	for(int i = 0; i < 2; i++){
@@ -65,12 +58,3 @@ void RGB::clear(void){
 	pixels2.clear();
 	pixels2.show();
 }
-
-
-
-
-
-
-
-
-
