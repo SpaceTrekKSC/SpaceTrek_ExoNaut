@@ -18,7 +18,7 @@
  * robot.set_motor_speed(left, right);      //This command sets both motor speeds.  It takes integer numbers for the left and right parameters.
  *                                          //Positive numbers will make the motor move forward, negative numbers will make it move backwards.
  * 
- * robot.stop_motors(motorID);              //This command stops the motors.
+ * robot.stop_motor(motorID);               //This command stops the motors.
  *                                          //MotorID 0 is both motors, motorID 1 is the left, and motorID 2 is the right.
  *
  * ultrasonic us;                           //This command sets up the ultrasonic us object. ultrasonic is the class and us is the name given to the object

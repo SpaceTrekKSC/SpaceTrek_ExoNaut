@@ -17,7 +17,7 @@
  * robot.set_motor_speed(left, right);      //This command sets both motor speeds.  It takes integer numbers for the left and right parameters.
  *                                          //Positive numbers will make the motor move forward, negative numbers will make it move backwards.
  * 
- * robot.stop_motors(motorID);              //This command stops the motors.
+ * robot.stop_motor(motorID);               //This command stops the motors.
  *                                          //MotorID 0 is both motors, motorID 1 is the left, and motorID 2 is the right.
  *
  * lineFollower lf;                         //This command sets up the lineFollower lf object. lineFollower is the class and lf is the name given to the object
@@ -29,6 +29,18 @@
  *                                          //because the line is black a 0 indicates when the sensor is over the line
  *                                          //remember, a 0 is false and anything not zero, such as a 1, is true
  *
+ *
+ * Line follower sensor numbers (viewed from top)
+ * 
+ *     __1__2__3__4___
+ *     |             |
+ *     |             |
+ *     |             |
+ *   |||             |||
+ *   |||             |||
+ *   |||_____________|||
+ * 
+ * 
 **************************************************/
 
 #include <ExoNaut.h>                          //include the ExoNaut library

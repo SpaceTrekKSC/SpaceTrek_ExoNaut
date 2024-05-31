@@ -17,7 +17,7 @@
  * robot.set_motor_speed(left, right);      //This command sets both motor speeds.  It takes integer numbers for the left and right parameters.
  *                                          //Positive numbers will make the motor move forward, negative numbers will make it move backwards.
  * 
- * robot.stop_motors(motorID);              //This command stops the motors.
+ * robot.stop_motor(motorID);               //This command stops the motors.
  *                                          //MotorID 0 is both motors, motorID 1 is the left, and motorID 2 is the right.
  * 
 **************************************************/
@@ -33,6 +33,7 @@ void setup() {                                //the setup() function runs once
                                               //To turn left make the left motor speed less than the right motor speed
   delay(2000);                                //wait for two seconds
   
+  robot.stop_motor(0);                        //stops both motors
 }                                             //end of the setup() function
 
 void loop() {

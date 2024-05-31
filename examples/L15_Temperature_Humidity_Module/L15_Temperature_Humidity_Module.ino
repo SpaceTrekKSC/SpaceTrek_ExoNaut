@@ -1,11 +1,14 @@
 /**************************************************
  * L15_Temperature_Humidity_Module.ino
- * An example program to demonstrate how to use the Temperature & Humidty sensor.
+ * An example program to demonstrate how to use the Temperature & Humidity sensor.
  * If you would like to look further into the sensor, it is the AHT10.
  *
  * Author: Andrew Gafford
  * Email: agafford@spacetrek.com
  * Date: May 20th, 2024
+ *
+ * The temperature & humidity module is an i2c device.  It must be plugged
+ * into port 3, 4, 5 or 9.  It will not work in any other ports.
  *
  *
  * Commands:
