@@ -24,6 +24,10 @@
 
 class lineFollower{
 	public:
+		bool CH1;
+		bool CH2;
+		bool CH3;
+		bool CH4;
 		bool readLineFollower(uint8_t &val);
 	
 	private:

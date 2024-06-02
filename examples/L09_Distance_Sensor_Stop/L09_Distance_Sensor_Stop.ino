@@ -1,5 +1,5 @@
 /**************************************************
- * L11_Distance_Sensor_LEDs.ino
+ * L09_Distance_Sensor_Stop.ino
  * An example program that shows how to change the LEDs on the distance sensor
 
  *

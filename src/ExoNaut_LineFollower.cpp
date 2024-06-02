@@ -66,5 +66,11 @@ bool lineFollower::readLineFollower(uint8_t &val){
 	while(Wire.available()){
 		val = Wire.read();
 	}
+	
+	this->CH1 = val & 0b00000001;
+	this->CH2 = (val & 0b00000010) >> 1;
+	this->CH3 = (val & 0b00000100) >> 2;
+	this->CH4 = (val & 0b00001000) >> 3;
+	
 	return true;
 }
