@@ -42,7 +42,7 @@
 RGB rgb;                                          //define the rgb object
 
 void setup(){                                     //the setup() function runs a single time
-  rgb.begin(10);                                  //start the robot object
+  rgb.begin(2);                                   //start the robot object
   delay(1500);                                    //wait 1.5 seconds
 }
 
