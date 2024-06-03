@@ -101,7 +101,7 @@ class exonaut{
 	public:
 		//Motor control
 		void begin(void);
-		void set_motor_speed(int m1, int m2);								//set normal motor speed //this is the set_motor_speed function
+		void set_motor_speed(float m1, float m2);								//set normal motor speed //this is the set_motor_speed function
 		void set_motor_type(uint8_t motortype);								//set encoder motor type //this is the hw_encoder_motor_set_motor_type function
 		void encoder_motor_set_speed(uint8_t motorid, float new_speed);		//set speed //this is the hw_encoder_motor_set_speed function
 		void encoder_motor_get_speed(float items[]);						//get speed of both motors

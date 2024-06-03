@@ -88,7 +88,7 @@ void exonaut::begin(void){
 	delay(500);
 }
 
-void exonaut::set_motor_speed(int m1, int m2){
+void exonaut::set_motor_speed(float m1, float m2){
     // uint8_t buf[6] = {0x55, 0x55, 0x04, 0x32, 0x00, 0x00};
     // m1 = m1 > 100 ? 100 : m1;
     // m2 = m2 > 100 ? 100 : m2;
