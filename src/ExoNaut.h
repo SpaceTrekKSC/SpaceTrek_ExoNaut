@@ -117,6 +117,9 @@ class exonaut{
 		void setColorAll(uint8_t r, uint8_t g, uint8_t b);
 		void show(void);
 		void clear(void);
+		
+		//bus servos
+		void bus_servo_set_pose(uint8_t id, uint16_t pos, uint16_t time);
 
 	private:
 		TaskHandle_t rx_task_handle;

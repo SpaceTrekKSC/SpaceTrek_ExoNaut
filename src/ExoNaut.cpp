@@ -260,6 +260,16 @@ void exonaut::clear(void){
 	pixels.show();
 }
 
+void exonaut::bus_servo_set_pose(uint8_t id, uint16_t pos, uint16_t time){
+    uint8_t buf[10] = {0x55, 0x55, 0x08, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+    buf[5] = time & 0x00FF;
+    buf[6] = (time>>8)&0x00FF;
+    buf[7] = id;
+    buf[8] = pos & 0x00FF;
+    buf[9] = (pos>>8)&0x00FF;
+    ets_serial.write(buf,10);
+}
+
 void rx_task(void *pvParameter){
 	static uint8_t rx_buf[64];
 	static uint8_t cmd_buf[64];
