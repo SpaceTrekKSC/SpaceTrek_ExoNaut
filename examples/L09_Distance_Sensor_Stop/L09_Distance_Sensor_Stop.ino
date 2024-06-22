@@ -1,7 +1,6 @@
 /**************************************************
  * L09_Distance_Sensor_Stop.ino
- * An example program that shows how to change the LEDs on the distance sensor
-
+ * An example program that shows how to use the distance sensor to stop
  *
  * Author: Andrew Gafford
  * Email: agafford@spacetrek.com
