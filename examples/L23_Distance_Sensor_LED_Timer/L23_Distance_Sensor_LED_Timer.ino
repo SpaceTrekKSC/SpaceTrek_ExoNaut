@@ -1,7 +1,8 @@
 /**************************************************
  * L23_Distance_Sensor_LED_Timer.ino
- * An example program that shows how to change the LEDs on the distance sensor
-
+ * An example program that shows how to use a timer to do some event every so often
+ * without blocking the program by using a delay()
+ *
  *
  * Author: Andrew Gafford
  * Email: agafford@spacetrek.com

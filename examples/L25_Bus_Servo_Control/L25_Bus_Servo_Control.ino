@@ -8,6 +8,8 @@
  * The gripper has serial motor ID 1 and has a range of motion from 0 to 550
  * The elbow has serial motor ID 2 and has a range of motion from 0 to 1000
  *
+ * The bus servos must be plugged into port 10, they will not work on any other port
+ *
  * Author: Andrew Gafford
  * Email: agafford@spacetrek.com
  * Date: June 10th, 2024
@@ -38,6 +40,7 @@ int position = 500;                                     //initialize a variable 
 void setup() {                                          //the setup() function runs a single time
   Serial.begin(9600);                                   //start the serial port
   robot.begin();                                        //start the robot object
+  robot.beginBusServo();                                //start the bus servo
   delay(1500);                                          //wait 1.5 seconds
   robot.bus_servo_set_pose(SERVO_ID,position,1000);     //set the initial position of the servo to 500
   delay(500);                                           //wait 0.5 seconds

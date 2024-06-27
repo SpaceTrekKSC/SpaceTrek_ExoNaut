@@ -119,6 +119,7 @@ class exonaut{
 		void clear(void);
 		
 		//bus servos
+		void beginBusServo();
 		void bus_servo_set_pose(uint8_t id, uint16_t pos, uint16_t time);
 
 	private:
