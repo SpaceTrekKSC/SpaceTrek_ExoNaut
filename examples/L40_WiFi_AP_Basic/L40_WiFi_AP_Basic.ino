@@ -5,7 +5,7 @@
 //Once connected to your robot via WiFi the address of your robot will be 192.168.4.1
 
 // Replace with unique SSID and password so others can't access your robot
-const char* ssid     = "ESP32-SpaceTrek";
+const char* ssid     = "SpaceTrek-ExoNaut";
 const char* password = "123456789";
 
 WiFiServer server(80);                          // Set web server port number to 80
@@ -16,7 +16,7 @@ String header;                                  //variable to store the HTTP req
 String ledState = "off";                        //variable to store the current LED output state
 
 void setup(){                                   //setup() runs once at the beginning of the program
-  Serial.begin(9600);                           //start the serial connection to the PC
+  Serial.begin(115200);                           //start the serial connection to the PC
   robot.begin();                                //start the robot object
   delay(2000);                                  //wait for 2 seconds
 
@@ -33,7 +33,7 @@ void loop(){
   WiFiClient client = server.available();   // Listen for incoming clients
 
   if(client){                               // If a new client connects,
-    Serial.println("New Client.");          // print a message out in the serial port
+    // Serial.println("New Client.");          // print a message out in the serial port
     String currentLine = "";                // make a String to hold incoming data from the client
     while(client.connected()){              // loop while the client's connected
       if(client.available()){               // if there's bytes to read from the client,
@@ -52,10 +52,11 @@ void loop(){
             client.println();
             
             // turns the LEDs on and off
-            if (header.indexOf("GET /LEDs/on") >= 0) {
+            if(header.indexOf("GET /LEDs/on") >= 0){
               ledState = "on";
               robot.setColorAll(0, 0, 150);
-            } else if (header.indexOf("GET /LEDs/off") >= 0) {
+            }
+            else if(header.indexOf("GET /LEDs/off") >= 0){
               ledState = "off";
               robot.setColorAll(0, 0, 0);
             }
@@ -67,7 +68,7 @@ void loop(){
 
             // CSS to style the on/off buttons 
             client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-            client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
+            client.println(".button { background-color: #0000FF; border: none; color: white; padding: 16px 40px;");
             client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
             client.println(".button2 {background-color: #555555;}</style></head>");
             client.println("<body><h1>ExoNaut Web Server</h1>");              // Web Page Heading
@@ -94,8 +95,8 @@ void loop(){
     // Clear the header variable
     header = "";
     // Close the connection
-    client.stop();
-    Serial.println("Client disconnected.");
-    Serial.println("");
+    //client.stop();
+    // Serial.println("Client disconnected.");
+    // Serial.println("");
   }
 }
