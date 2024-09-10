@@ -12,35 +12,35 @@ WiFiServer server(80);                          // Set web server port number to
 
 exonaut robot;                                  //create the robot object
 
-String header;                                  //variable to store the HTTP request
-String ledState = "off";                        //variable to store the current LED output state
+String header;                                        //variable to store the HTTP request
+String ledState = "off";                              //variable to store the current LED output state
 
-void setup(){                                   //setup() runs once at the beginning of the program
-  Serial.begin(115200);                           //start the serial connection to the PC
-  robot.begin();                                //start the robot object
-  delay(2000);                                  //wait for 2 seconds
+void setup(){                                         //setup() runs once at the beginning of the program
+  Serial.begin(115200);                               //start the serial connection to the PC
+  robot.begin();                                      //start the robot object
+  delay(2000);                                        //wait for 2 seconds
 
-  Serial.println("Setting up the AP…");         //send text to the PC so the user knows what is happening
-  WiFi.softAP(ssid, password);                  //remove the password parameter, if you want the Access Point to be open
+  Serial.println("Setting up the AP…");               //send text to the PC so the user knows what is happening
+  WiFi.softAP(ssid, password);                        //remove the password parameter, if you want the Access Point to be open
 
-  IPAddress IP = WiFi.softAPIP();               //get the IP address of the robot and store it in IP
-  Serial.print("ExoNaut's IP address: ");       //output text to the PC so user knows the robots IP address
-  Serial.println(IP);                           //output the IP
-  server.begin();                               //start the web server
+  IPAddress IP = WiFi.softAPIP();                     //get the IP address of the robot and store it in IP
+  Serial.print("ExoNaut's IP address: ");             //output text to the PC so user knows the robots IP address
+  Serial.println(IP);                                 //output the IP
+  server.begin();                                     //start the web server
 }
 
 void loop(){
-  WiFiClient client = server.available();   // Listen for incoming clients
+  WiFiClient client = server.accept();                // Listen for incoming clients
 
-  if(client){                               // If a new client connects,
-    // Serial.println("New Client.");          // print a message out in the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
-    while(client.connected()){              // loop while the client's connected
-      if(client.available()){               // if there's bytes to read from the client,
-        char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
+  if(client){                                         // If a new client connects,
+    // Serial.println("New Client.");                    // print a message out in the serial port
+    String currentLine = "";                          // make a String to hold incoming data from the client
+    while(client.connected()){                        // loop while the client's connected
+      if(client.available()){                         // if there's bytes to read from the client,
+        char c = client.read();                       // read a byte, then
+        Serial.write(c);                              // print it out the serial monitor
         header += c;
-        if(c == '\n') {                     // if the byte is a newline character
+        if(c == '\n') {                               // if the byte is a newline character
           // if the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
           if(currentLine.length() == 0){
