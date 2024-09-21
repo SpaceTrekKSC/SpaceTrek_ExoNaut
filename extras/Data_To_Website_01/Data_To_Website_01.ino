@@ -32,8 +32,7 @@ Then follow this totorial to install the data base neded for this program
 #endif
 
 #include <Wire.h>
-//#include <Adafruit_Sensor.h>
-//#include <Adafruit_BME280.h>
+
 
 // Replace with your network credentials
 const char* ssid     = "SSID";
@@ -48,18 +47,6 @@ String apiKeyValue = "tPmAT5Ab3j7F9";
 
 String sensorName = "Random";
 String sensorLocation = "Desk";
-
-/*#include <SPI.h>
-#define BME_SCK 18
-#define BME_MISO 19
-#define BME_MOSI 23
-#define BME_CS 5*/
-
-//#define SEALEVELPRESSURE_HPA (1013.25)
-
-//Adafruit_BME280 bme;  // I2C
-//Adafruit_BME280 bme(BME_CS);  // hardware SPI
-//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK);  // software SPI
 
 float randomNumber1 = 0.0;
 float randomNumber2 = 0.0;
@@ -78,14 +65,6 @@ void setup() {
   Serial.println("");
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
-
-  // (you can also pass in a Wire library object like &Wire2)
-
-  // bool status = bme.begin(0x76);
-  // if (!status) {
-  //   Serial.println("Could not find a valid BME280 sensor, check wiring or change I2C address!");
-  //   while (1);
-  // }
 }
 
 void loop() {
@@ -112,7 +91,7 @@ void loop() {
     Serial.println(httpRequestData);
     
     // You can comment the httpRequestData variable above
-    // then, use the httpRequestData variable below (for testing purposes without the BME280 sensor)
+    // then, use the httpRequestData variable below (for testing purposes without the random data)
     //String httpRequestData = "api_key=tPmAT5Ab3j7F9&sensor=BME280&location=Office&value1=24.75&value2=49.54&value3=1005.14";
 
     // Send HTTP POST request
@@ -144,5 +123,5 @@ void loop() {
     Serial.println("WiFi Disconnected");
   }
   //Send an HTTP POST request every 30 seconds
-  delay(15000);  
+  delay(30000);  
 }
