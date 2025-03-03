@@ -9,9 +9,6 @@
 
 #include "ExoNaut_Knob.h"
 
-//------------------------------------------------------------------------------
-// Constructor
-//------------------------------------------------------------------------------
 ExoNaut_Knob::ExoNaut_Knob(uint8_t knobPin)
 {
   // Set pin
@@ -30,10 +27,6 @@ ExoNaut_Knob::ExoNaut_Knob(uint8_t knobPin)
   _smoothingIndex = 0;
   _smoothingBufferFull = false;
 }
-
-//------------------------------------------------------------------------------
-// Public Methods
-//------------------------------------------------------------------------------
 
 bool ExoNaut_Knob::begin(void)
 {
@@ -180,10 +173,6 @@ void ExoNaut_Knob::update(void)
     }
   }
 }
-
-//------------------------------------------------------------------------------
-// Private Methods
-//------------------------------------------------------------------------------
 
 int ExoNaut_Knob::calculateSmoothedValue(void)
 {
