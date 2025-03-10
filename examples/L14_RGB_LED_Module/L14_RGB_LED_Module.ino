@@ -1,12 +1,8 @@
 /**************************************************
  * L14_RGB_LED_Module.ino
- * An example program to demonstrate how to use the LEDs built into the CoreX controller.
- * The built in LEDs are RGB Neo Pixels.  These provide a full range of colors and are
- * convenient to use from Arduino.
- *
- * The RGB LEDs are Neo Pixels.  Adafruit has a very good library for using them. If you would
- * like to experiment with features not supported by the ExoNaut library you can used the 
- * Adafruit NeoPixel library.  There are two LEDs and the port to pin mapping is given below.
+ * An example program to demonstrate how to use the RGB LED module with the ExoNaut.
+ * 
+ * The RGB LEDs are Neo Pixels. The module has two LEDs and the port to pin mapping is:
  *	___________________________
  *	 PORT Number |	Pin Number
  *        2      |      32
@@ -17,67 +13,71 @@
  * Email: agafford@spacetrek.com
  * Date: May 20th, 2024
  *
- *
  * Commands:
- * RGB rgb;                                         //This command sets up the RGB rgb object.  RGB is the class and rgb is the name of the object.
- * 
- * rgb.begin();                                     //This command initializes or begins the things in the rgb object.
- *                                                  //It is used once at the beginning of the program.
- * 
- * rgb.setColor(pixel-num, red, green, blue);       //This command sets the color of one of the RGB LEDs in memory
- *                                                  //You must call rgb.show() to activate changes to the RGB colors.
- * 
- * rgb.setColorAll(reg, green, blue);               //This command sets the RGB values for both LEDs and automatically 
- *                                                  //calls the rgb.show() command.
- *
- * rgb.show();                                      //This command makes the RGB LEDs show the colors set in their memory.
- *
- * rgb.clear();                                     //This command clears all RGB LEDs and turns them off.    
+ * RGB rgb;                                         // Create the RGB object
+ * rgb.begin(port);                                 // Initialize the RGB module on specified port (2, 6, or 8)
+ * rgb.setColor(pixel-num, red, green, blue);       // Set the color of one LED (call rgb.show() to display)
+ * rgb.setColorAll(red, green, blue);               // Set all LEDs to same color and display immediately
+ * rgb.show();                                      // Update LEDs with colors in memory
+ * rgb.clear();                                     // Turn off all LEDs
  *
 **************************************************/
 
-#include <ExoNaut.h>                              //include the main ExoNaut library
-#include <ExoNaut_RGB_LED.h>                      //
+#include <ExoNaut.h>
+#include <ExoNaut_RGB_LED.h>
 
-RGB rgb;                                          //define the rgb object
+exonaut robot;             // Create the main robot object
+RGB rgb;                   // Create the RGB LED object
 
-void setup(){                                     //the setup() function runs a single time
-  rgb.begin(2);                                   //start the robot object
-  delay(1500);                                    //wait 1.5 seconds
+void setup() {
+  Serial.begin(115200);    // Initialize serial communication
+  Serial.println("RGB LED Test Starting");
+  
+  robot.begin();           // Initialize the robot
+  Serial.println("Robot initialized");
+  
+  rgb.begin(8);            // Initialize the RGB module on port 8 (pin 26)
+  Serial.println("RGB LED initialized on port 8 (pin 26)");
+  
+  delay(1500);             // Wait 1.5 seconds
 }
 
-void loop(){                                      //the loop() function runs forever in a loop
-  rgb.setColorAll(150, 0, 0);                     //sets both LEDs to RED at a brightness of 150 and shows it 
-  delay(1000);                                    //wait for 1 second
-  rgb.setColorAll(0, 150, 0);                     //sets both LEDs to RED at a brightness of 150 and shows it
-  delay(1000);                                    //wait for 1 second
-  rgb.setColorAll(0, 0, 150);                     //sets both LEDs to RED at a brightness of 150 and shows it
-  delay(1000);                                    //wait for 1 second
-  rgb.clear();                                    //clears the LEDs and turns them off
-  delay(1000);                                    //wait for 1 second
+void loop() {
+  // Example 1: Set all LEDs to different colors
+  rgb.setColorAll(150, 0, 0);    // Red
+  delay(1000);
+  rgb.setColorAll(0, 150, 0);    // Green
+  delay(1000);
+  rgb.setColorAll(0, 0, 150);    // Blue
+  delay(1000);
+  rgb.clear();                   // Turn off
+  delay(1000);
 
-  for(int i = 0; i < 2; i++){                     //a for loop to iterate through 0 to 5 to work on each LED's color
-    rgb.setColor(i, 0, 0, 200);                   //sets pixel number i to GREEN at a brightness of 200
-    rgb.show();                                   //shows the change to the RGB values
-    delay(1000);                                  //waits for 0.5 seconds
+  // Example 2: Set each LED individually, one at a time
+  for(int i = 0; i < 2; i++) {
+    rgb.setColor(i, 0, 0, 200);  // Blue
+    rgb.show();                  // Update display
+    delay(1000);
   }
-  delay(1000);                                    //waits for 1 second
-  rgb.clear();                                    //clears the LEDs
-  delay(1000);                                    //waits for 1 second
+  delay(1000);
+  rgb.clear();
+  delay(1000);
 
-  rgb.setColor(0, 200, 0, 0);                     //these two commands set each LED individually
-  rgb.setColor(1, 0, 200, 0);                     //without showing them.
-  rgb.show();                                     //once both have been set, show() makes them all change at the same time
-  delay(2000);                                    //wait for 2 seconds
-  rgb.clear();                                    //clears the LEDs
-  delay(1000);                                    //waits for 1 second
+  // Example 3: Set different colors for each LED
+  rgb.setColor(0, 200, 0, 0);    // Set first LED to red
+  rgb.setColor(1, 0, 200, 0);    // Set second LED to green
+  rgb.show();                    // Update both at once
+  delay(2000);
+  rgb.clear();
+  delay(1000);
 
-  for(int i = 0; i < 2; i++){                     //a for loop to change each LED
-    rgb.setColor(i, 200, 200, 200);
+  // Example 4: Set all LEDs to white
+  for(int i = 0; i < 2; i++) {
+    rgb.setColor(i, 200, 200, 200);  // White
   }
-  rgb.show();                                     //shows the change to the RGB values  
-  delay(2000);                                    //waits for 2 seconds
+  rgb.show();
+  delay(2000);
 
-  rgb.clear();                                    //clears the LEDs
-  delay(1000);                                    //waits for 1 second
+  rgb.clear();
+  delay(1000);
 }
