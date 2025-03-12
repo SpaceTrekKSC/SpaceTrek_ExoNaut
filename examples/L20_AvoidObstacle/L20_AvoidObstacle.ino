@@ -1,5 +1,6 @@
 /**************************************************
- * L14_RGB_LED_Module.ino
+ * L20_RGB_LED_Module.ino
+ 
  * An example program to demonstrate how to use the RGB LED module with the ExoNaut.
  * MAke sure to Attach the RGB LED module to port 6
  * The RGB LEDs are Neo Pixels. The module has two LEDs and the port to pin mapping is:
@@ -11,7 +12,7 @@
  *
  * Author: Andrew Gafford
  * Email: agafford@spacetrek.com
- * Date: May 20th, 2024
+ * Date: March 5th, 2025
  *
  * Commands:
  * RGB rgb;                                         // Create the RGB object
