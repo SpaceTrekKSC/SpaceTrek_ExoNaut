@@ -1,3 +1,12 @@
+/*
+ *L42_WiFiControlWebInterface.ino
+ *
+ *Author: Ryan Bori
+ *Date:	March 5th, 2025
+ *
+ *
+ */
+
 #include <WiFi.h>
 #include <WebServer.h>
 #include "ExoNaut.h"
