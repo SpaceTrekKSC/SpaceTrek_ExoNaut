@@ -1,5 +1,5 @@
 /*
- * L20_AICam.ino
+ * L60_AICam.ino
  *
  * This sketch allows control of the Space Trek ExoNaut Robot and AI Camera
  * through serial monitor commands.
