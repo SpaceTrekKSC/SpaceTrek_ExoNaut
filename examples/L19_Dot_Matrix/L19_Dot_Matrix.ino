@@ -25,7 +25,7 @@ void setup() {
   
   // Initialize the TM1640 dot matrix
   dotMatrix.begin();
-  
+  dotMatrix.setBrightness(TM1640_BRIGHTNESS_MAX);
   // Set robot's onboard LEDs
   robot.setColorAll(0, 255, 0);  // Green
   robot.show();
