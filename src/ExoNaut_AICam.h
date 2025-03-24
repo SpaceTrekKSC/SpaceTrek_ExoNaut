@@ -64,6 +64,14 @@ struct WonderCamAprilTagResult
     float z_r;
 } __attribute__((aligned(32)));
 
+struct WonderCamLandmarkResult
+{
+    int16_t x;
+    int16_t y;
+    uint16_t w;
+    uint16_t h;
+} __attribute__((aligned(16)));
+
 #pragma pack()
 
 #define WONDERCAM_LED_ON (true)
@@ -81,6 +89,7 @@ typedef enum
     APPLICATION_APRILTAG,
     APPLICATION_QRCODE,
     APPLICATION_BARCODE,
+    APPLICATION_LANDMARK = 11,
     APPLICATION_MAX,
 } APPLICATION;
 
@@ -180,6 +189,16 @@ public:
     bool barCodeDetected(void);
     int barCodeDataLength(void);
     int barCodeData(uint8_t *buf);
+    //
+    // landmark recognition
+    bool anyLandmarkDetected(void);
+    int numOfLandmarksDetected(void);
+    bool landmarkIdDetected(uint8_t id);
+    int numOfLandmarkIdDetected(uint8_t id);
+    bool getLandmarkById(uint8_t id, WonderCamLandmarkResult *p);
+    int landmarkIdOfMaxProb();
+    float landmarkMaxProb();
+    float landmarkProbOfId(uint8_t id);
     //
     uint8_t current;
     uint8_t result_summ[128];
