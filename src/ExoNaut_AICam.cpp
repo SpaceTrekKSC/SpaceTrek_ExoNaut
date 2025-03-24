@@ -284,7 +284,7 @@ bool ExoNaut_AICam::objDetected(uint8_t id, uint8_t index, WonderCamObjDetectRes
             return true;
         }
     }
-    return false; // Fixed: Added missing return statement
+    return false;
 }
 //
 int ExoNaut_AICam::classIdOfMaxProb()
@@ -566,7 +566,7 @@ bool ExoNaut_AICam::colorId(uint8_t id, WonderCamColorDetectResult *p)
             return r == 16 ? true : false;
         }
     }
-    return false; // Fixed: Added missing return statement
+    return false;
 }
 
 /* 是否识别到了线 */
@@ -634,7 +634,116 @@ bool ExoNaut_AICam::lineId(uint8_t id, WonderCamLineResult *p)
             return true;
         }
     }
-    return false; // Fixed: Added missing return statement
+    return false;
+}
+
+// Landmark Recognition Functions
+
+bool ExoNaut_AICam::anyLandmarkDetected(void)
+{
+    if (current != APPLICATION_LANDMARK)
+    {
+        return false;
+    }
+    return result_summ[1] > 0 ? true : false;
+}
+
+int ExoNaut_AICam::numOfLandmarksDetected(void)
+{
+    if (current != APPLICATION_LANDMARK)
+    {
+        return 0;
+    }
+    return result_summ[1];
+}
+
+bool ExoNaut_AICam::landmarkIdDetected(uint8_t id)
+{
+    if (current != APPLICATION_LANDMARK)
+    {
+        return false;
+    }
+    int num = result_summ[1];
+    for (int i = 2; i < 2 + num; ++i)
+    {
+        if (result_summ[i] == id)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int ExoNaut_AICam::numOfLandmarkIdDetected(uint8_t id)
+{
+    if (current != APPLICATION_LANDMARK)
+    {
+        return 0;
+    }
+    int count = 0;
+    int num = result_summ[1];
+    for (int i = 2; i < 2 + num; ++i)
+    {
+        if (result_summ[i] == id)
+        {
+            ++count;
+        }
+    }
+    return count;
+}
+
+bool ExoNaut_AICam::getLandmarkById(uint8_t id, WonderCamLandmarkResult *p)
+{
+    memset(p, 0, sizeof(WonderCamLandmarkResult));
+    if (current != APPLICATION_LANDMARK)
+    {
+        return false;
+    }
+    if (!anyLandmarkDetected())
+    {
+        return false;
+    }
+    int num = result_summ[1];
+    for (int i = 2; i < 2 + num; ++i)
+    {
+        if (result_summ[i] == id)
+        {
+            int r = readFromAddr(0x2200 + 48 + (16 * (i - 2)), (uint8_t *)p, 16);
+            return r == 16 ? true : false;
+        }
+    }
+    return false;
+}
+
+int ExoNaut_AICam::landmarkIdOfMaxProb()
+{
+    if (current != APPLICATION_LANDMARK)
+    {
+        return 0;
+    }
+    return (int8_t)result_summ[1];
+}
+
+float ExoNaut_AICam::landmarkMaxProb()
+{
+    uint16_t prob_u16;
+    if (current != APPLICATION_LANDMARK)
+    {
+        return 0;
+    }
+    memcpy(&prob_u16, &result_summ[2], 2);
+    return ((float)((int)(prob_u16))) / 10000.0;
+}
+
+float ExoNaut_AICam::landmarkProbOfId(uint8_t id)
+{
+    uint16_t prob_u16;
+    if (current != APPLICATION_LANDMARK)
+    {
+        return 0;
+    }
+    memcpy(&prob_u16, &result_summ[16 + (id - 1) * 4], 2);
+    return ((float)((int)(prob_u16))) / 10000.0;
 }
 
 // 更新结果
@@ -686,7 +795,12 @@ bool ExoNaut_AICam::updateResult(void)
     case APPLICATION_BARCODE:
     {
         readFromAddr(0x1C00, result_summ, 48);
-        break; // Fixed: Added missing break statement
+        break;
+    }
+    case APPLICATION_LANDMARK:
+    {
+        readFromAddr(0x2200, result_summ, 48);
+        break;
     }
     default:
     {
