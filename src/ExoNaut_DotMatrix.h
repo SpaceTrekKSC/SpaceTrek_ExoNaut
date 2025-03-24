@@ -31,10 +31,6 @@
 #define TM1640_BRIGHTNESS_MIN 0
 #define TM1640_BRIGHTNESS_MAX 7
 
-// Text scroll parameters
-#define SCROLL_SPEED_DEFAULT 30 // Default scroll delay in milliseconds
-#define CHAR_SPACING 1          // Number of empty pixels between characters
-
 class ExoNaut_DotMatrix
 {
 public:
@@ -53,32 +49,13 @@ public:
     void displayNumber(uint8_t number);           // Display a number from 0-99
     void displayNumberWithEffect(uint8_t number); // Display with scroll effect
 
-    // Text display functions
-    void scrollText(const char *text, uint8_t numScrolls = 0, uint8_t scrollSpeed = SCROLL_SPEED_DEFAULT);
-    void stopScroll();   // Stop scrolling if in progress
-    bool isScrolling();  // Check if scrolling is active
-    void updateScroll(); // Update the scroll position - MOVED TO PUBLIC
-
 private:
     uint8_t _clkPin;
     uint8_t _dinPin;
     uint8_t _displayBuffer[16]; // Buffer for display data
 
-    // Scrolling text variables
-    bool _scrollActive;
-    unsigned long _lastScrollTime;
-    int _scrollPosition;
-    String _scrollText;
-    int _totalScrollWidth;
-    uint8_t _scrollSpeed;
-    uint8_t _scrollsRemaining;
-    uint8_t _scrollCount;
-
     // Digit patterns for 5x7 font (0-9)
     static const uint8_t DIGITS[10][5];
-
-    // Character patterns for 5x7 font (A-Z, a-z, symbols)
-    static const uint8_t CHARS[96][5]; // ASCII 32-127
 
     void sendCommand(uint8_t cmd);
     void startTransmission();
@@ -86,15 +63,10 @@ private:
     void sendData(uint8_t address, uint8_t data);
     void sendData(uint8_t data);
 
-    // Helper functions for display
+    // Helper functions for number display
     void clearBuffer();
     void setPixel(int x, int y, bool state);
     void drawDigit(int digit, int xOffset, int yOffset);
-    void drawChar(char character, int xOffset, int yOffset);
-
-    // Scroll text helper functions
-    int getCharWidth(char character);
-    int calculateTextPixelWidth(const char *text);
 };
 
 #endif // __EXONAUT_DOTMATRIX_h
