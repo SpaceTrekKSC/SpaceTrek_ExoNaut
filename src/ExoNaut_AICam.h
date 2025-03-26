@@ -89,6 +89,7 @@ typedef enum
     APPLICATION_APRILTAG,
     APPLICATION_QRCODE,
     APPLICATION_BARCODE,
+    APPLICATION_NUMBER_REC = 10,
     APPLICATION_LANDMARK = 11,
     APPLICATION_MAX,
 } APPLICATION;
@@ -200,6 +201,11 @@ public:
     int landmarkIdWithMaxProb();
     float landmarkMaxProb();
     float landmarkProbOfId(uint8_t id);
+
+    // Number recognition methods
+    int numberWithMaxProb(void);
+    float numberMaxProb(void);
+    float numberProbOfId(uint8_t id);
     //
     uint8_t current;
     uint8_t result_summ[128];
