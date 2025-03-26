@@ -196,7 +196,8 @@ public:
     bool landmarkIdDetected(uint8_t id);
     int numOfLandmarkIdDetected(uint8_t id);
     bool getLandmarkById(uint8_t id, WonderCamLandmarkResult *p);
-    int landmarkIdOfMaxProb();
+    // Added landmark probability methods
+    int landmarkIdWithMaxProb();
     float landmarkMaxProb();
     float landmarkProbOfId(uint8_t id);
     //
