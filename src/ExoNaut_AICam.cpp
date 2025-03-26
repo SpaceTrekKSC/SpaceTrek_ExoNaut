@@ -708,20 +708,27 @@ bool ExoNaut_AICam::getLandmarkById(uint8_t id, WonderCamLandmarkResult *p)
     {
         if (result_summ[i] == id)
         {
-            int r = readFromAddr(0x2200 + 48 + (16 * (i - 2)), (uint8_t *)p, 16);
+            int r = readFromAddr(0x0D80 + 48 + (16 * (i - 2)), (uint8_t *)p, 16);
             return r == 16 ? true : false;
         }
     }
     return false;
 }
 
-int ExoNaut_AICam::landmarkIdOfMaxProb()
+// Updated landmark probability methods to use correct address
+int ExoNaut_AICam::landmarkIdWithMaxProb()
 {
     if (current != APPLICATION_LANDMARK)
     {
         return 0;
     }
-    return (int8_t)result_summ[1];
+
+    // Read directly from the correct address
+    uint8_t landmarkData[4];
+    readFromAddr(0x0D80, landmarkData, 4);
+
+    // Return the ID from the second byte
+    return (int8_t)landmarkData[1];
 }
 
 float ExoNaut_AICam::landmarkMaxProb()
@@ -731,7 +738,14 @@ float ExoNaut_AICam::landmarkMaxProb()
     {
         return 0;
     }
-    memcpy(&prob_u16, &result_summ[2], 2);
+
+    // Read directly from the correct address
+    uint8_t landmarkData[4];
+    readFromAddr(0x0D80, landmarkData, 4);
+
+    // Combine bytes for probability (little-endian: bytes 2-3)
+    prob_u16 = (landmarkData[3] << 8) | landmarkData[2];
+
     return ((float)((int)(prob_u16))) / 10000.0;
 }
 
@@ -742,7 +756,14 @@ float ExoNaut_AICam::landmarkProbOfId(uint8_t id)
     {
         return 0;
     }
-    memcpy(&prob_u16, &result_summ[16 + (id - 1) * 4], 2);
+
+    // Read from the correct address for the specific ID
+    uint8_t landmarkData[4];
+    readFromAddr(0x0D80 + 16 + (id - 1) * 4, landmarkData, 4);
+
+    // First two bytes contain the probability
+    prob_u16 = (landmarkData[1] << 8) | landmarkData[0];
+
     return ((float)((int)(prob_u16))) / 10000.0;
 }
 
@@ -799,7 +820,8 @@ bool ExoNaut_AICam::updateResult(void)
     }
     case APPLICATION_LANDMARK:
     {
-        readFromAddr(0x2200, result_summ, 48);
+        // Updated to read from the correct address for landmarks
+        readFromAddr(0x0D80, result_summ, 48);
         break;
     }
     default:
