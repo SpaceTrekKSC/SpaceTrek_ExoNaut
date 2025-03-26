@@ -767,6 +767,38 @@ float ExoNaut_AICam::landmarkProbOfId(uint8_t id)
     return ((float)((int)(prob_u16))) / 10000.0;
 }
 
+// Number recognition methods (added from WonderCam implementation)
+int ExoNaut_AICam::numberWithMaxProb()
+{
+    if (current != APPLICATION_NUMBER_REC)
+    {
+        return 0;
+    }
+    return (int8_t)result_summ[1];
+}
+
+float ExoNaut_AICam::numberMaxProb()
+{
+    uint16_t prob_u16;
+    if (current != APPLICATION_NUMBER_REC)
+    {
+        return 0;
+    }
+    memcpy(&prob_u16, &result_summ[2], 2);
+    return ((float)((int)(prob_u16))) / 10000.0;
+}
+
+float ExoNaut_AICam::numberProbOfId(uint8_t id)
+{
+    uint16_t prob_u16;
+    if (current != APPLICATION_NUMBER_REC)
+    {
+        return 0;
+    }
+    memcpy(&prob_u16, &result_summ[16 + (id - 1) * 4], 2);
+    return ((float)((int)(prob_u16))) / 10000.0;
+}
+
 // 更新结果
 bool ExoNaut_AICam::updateResult(void)
 {
@@ -786,6 +818,17 @@ bool ExoNaut_AICam::updateResult(void)
     case APPLICATION_CLASSIFICATION:
     {
         readFromAddr(0x0C00, result_summ, 128);
+        break;
+    }
+    case APPLICATION_NUMBER_REC:
+    {
+        readFromAddr(0x0D00, result_summ, 128);
+        break;
+    }
+    case APPLICATION_LANDMARK:
+    {
+        // Updated to read from the correct address for landmarks
+        readFromAddr(0x0D80, result_summ, 48);
         break;
     }
     case APPLICATION_FEATURELEARNING:
@@ -816,12 +859,6 @@ bool ExoNaut_AICam::updateResult(void)
     case APPLICATION_BARCODE:
     {
         readFromAddr(0x1C00, result_summ, 48);
-        break;
-    }
-    case APPLICATION_LANDMARK:
-    {
-        // Updated to read from the correct address for landmarks
-        readFromAddr(0x0D80, result_summ, 48);
         break;
     }
     default:
