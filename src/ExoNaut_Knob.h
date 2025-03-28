@@ -13,9 +13,6 @@
 #include <Arduino.h>
 #include "ExoNaut.h"
 
-// Default pin assignment
-#define KNOB_DEFAULT_PIN 36 // Default analog pin for knob
-
 // Configuration values
 #define KNOB_MIN_VALUE 0
 #define KNOB_MAX_VALUE 4095 // 12-bit ADC resolution
@@ -23,11 +20,11 @@
 class ExoNaut_Knob
 {
 public:
-  // Constructor - uses default pin if not specified
-  ExoNaut_Knob(uint8_t knobPin = KNOB_DEFAULT_PIN);
+  // Constructor - uses port instead of pin
+  ExoNaut_Knob();
 
-  // Initialize and configure the knob module
-  bool begin(void);
+  // Initialize and configure the knob module with a specific port
+  bool begin(uint8_t port);
 
   // Read raw ADC value (0 to 4095 for 12-bit resolution)
   int readRaw(void);
