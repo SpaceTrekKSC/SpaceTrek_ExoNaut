@@ -2,7 +2,7 @@
  * ExoNaut_DotMatrix.cpp
  *
  * Author: Based on ExoNaut code by Andrew Gafford
- * Date: March 5th, 2025
+ * Date: March 28th, 2025
  *
  * Implementation of TM1640 LED dot matrix display control
  * for the Space Trek ExoNaut Robot, including scrolling text functionality.
@@ -89,7 +89,7 @@ const uint8_t ExoNaut_DotMatrix::CHARS[96][5] = {
     {0x61, 0x51, 0x49, 0x45, 0x43}, // Z
     {0x00, 0x7F, 0x41, 0x41, 0x00}, // [
     {0x02, 0x04, 0x08, 0x10, 0x20}, // \
-     {0x00, 0x41, 0x41, 0x7F, 0x00}, // ]
+      {0x00, 0x41, 0x41, 0x7F, 0x00}, // ]
     {0x04, 0x02, 0x01, 0x02, 0x04}, // ^
     {0x40, 0x40, 0x40, 0x40, 0x40}, // _
     {0x00, 0x01, 0x02, 0x04, 0x00}, // `
@@ -130,11 +130,29 @@ const uint8_t ExoNaut_DotMatrix::CHARS[96][5] = {
 #define CHAR_SPACING 1          // Space between characters in pixels
 #define SCROLL_SPEED_DEFAULT 80 // Milliseconds between scroll updates (lower = faster)
 
-// Constructor
-ExoNaut_DotMatrix::ExoNaut_DotMatrix(uint8_t clkPin, uint8_t dinPin)
+// Constructor with port number
+ExoNaut_DotMatrix::ExoNaut_DotMatrix(uint8_t port)
 {
-    _clkPin = clkPin;
-    _dinPin = dinPin;
+    _port = port;
+
+    // Set pins based on port number
+    switch (port)
+    {
+    case 6:
+        _clkPin = PORT_6_CLK_PIN;
+        _dinPin = PORT_6_DIN_PIN;
+        break;
+    case 8:
+        _clkPin = PORT_8_CLK_PIN;
+        _dinPin = PORT_8_DIN_PIN;
+        break;
+    default:
+        // Default to port 6 if invalid port specified
+        _port = 6;
+        _clkPin = PORT_6_CLK_PIN;
+        _dinPin = PORT_6_DIN_PIN;
+        break;
+    }
 
     // Initialize scrolling variables
     _scrollActive = false;
@@ -148,6 +166,14 @@ ExoNaut_DotMatrix::ExoNaut_DotMatrix(uint8_t clkPin, uint8_t dinPin)
 
     // Initialize buffer
     clearBuffer();
+}
+
+// Set pins manually if needed
+void ExoNaut_DotMatrix::setPins(uint8_t clkPin, uint8_t dinPin)
+{
+    _clkPin = clkPin;
+    _dinPin = dinPin;
+    _port = 0; // Custom pin configuration
 }
 
 // Initialize the display
