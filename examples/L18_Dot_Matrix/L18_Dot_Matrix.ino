@@ -6,6 +6,9 @@
  *
  * This sketch demonstrates the features of the ExoNaut_DotMatrix library,
  * including displaying numbers and scrolling text.
+ * 
+ * The demo now supports the port selection system, allowing the dot matrix
+ * to be connected to either port 6 or port 8 of the ExoNaut robot.
  */
 
 #include <Arduino.h>
@@ -14,12 +17,17 @@
 
 // Create instances
 exonaut robot;
-ExoNaut_DotMatrix dotMatrix;
+
+// Create dot matrix on port 6 (can be changed to port 8)
+uint8_t dotMatrixPort = 6; // Change to 8 if using port 8
+ExoNaut_DotMatrix dotMatrix(dotMatrixPort);
 
 void setup() {
   // Initialize serial communication
   Serial.begin(115200);
   Serial.println("ExoNaut Dot Matrix Demo");
+  Serial.print("Using port: ");
+  Serial.println(dotMatrixPort);
   
   // Initialize the ExoNaut robot
   robot.begin();
@@ -36,6 +44,18 @@ void setup() {
   dotMatrix.setAllOn();
   delay(500);
   dotMatrix.clear();
+  delay(500);
+  
+  // Display welcome message showing which port is being used
+  String welcomeMsg = "DOT MATRIX ON PORT " + String(dotMatrixPort);
+  dotMatrix.scrollText(welcomeMsg.c_str(), 1, 70);
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
   delay(500);
 }
 
@@ -81,7 +101,8 @@ void loop() {
   delay(1000);
   
   // Scroll text with faster speed (1 scroll)
-  dotMatrix.scrollText("SPACE TREK", 1, 50);  // 50ms update speed (faster)
+  String portMsg = "PORT " + String(dotMatrixPort) + " ACTIVE";
+  dotMatrix.scrollText(portMsg.c_str(), 1, 50);  // 50ms update speed (faster)
   
   // Keep updating the scroll until it's complete
   while (dotMatrix.isScrolling()) {
@@ -93,7 +114,7 @@ void loop() {
   delay(1000);
   
   // Countdown timer (minutes:seconds)
-  int seconds = 20;  // 1:30
+  int seconds = 20;  // 20 seconds countdown
   
   Serial.println("Countdown Timer Demo");
   while (seconds > 0) {
@@ -149,6 +170,16 @@ void loop() {
     robot.show();
     delay(200);
   }
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
+  // Display which port is being used
+  String portReminder = "USING PORT " + String(dotMatrixPort);
+  dotMatrix.scrollText(portReminder.c_str(), 1, 70);
   
   // Keep updating the scroll until it's complete
   while (dotMatrix.isScrolling()) {
