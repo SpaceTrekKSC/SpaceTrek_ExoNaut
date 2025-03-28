@@ -6,16 +6,31 @@
  *
  * This library provides control for TM1640-based LED dot matrix displays
  * for the Space Trek ExoNaut Robot.
+ *
+ * The Dot Matrix module will work on ports 6 and 8 of the ExoNout robot.
+ * The following table gives the port to pin mapping:
+ *  __________________________
+ *  PORT Number |   Pin Mapping
+ *      6       |   CLK: 33, DIN: 25
+ *      8       |   CLK: 26, DIN: 27
  */
 
 #ifndef EXONAUT_DOTMATRIX_H
 #define EXONAUT_DOTMATRIX_H
 
 #include <Arduino.h>
+#include "ExoNaut.h"
 
-// Define TM1640 pins - you should adjust these to match your wiring
-#define TM1640_CLK_PIN 25 // Clock pin
-#define TM1640_DIN_PIN 33 // Data pin
+// Port specific pin mappings
+#define PORT_6_CLK_PIN 25
+#define PORT_6_DIN_PIN 33
+#define PORT_8_CLK_PIN 27
+#define PORT_8_DIN_PIN 26
+
+// Default ports
+#define DEFAULT_PORT 6
+#define DEFAULT_CLK_PIN PORT_6_CLK_PIN
+#define DEFAULT_DIN_PIN PORT_6_DIN_PIN
 
 // Dot matrix configuration
 #define TM1640_GRID_WIDTH 16 // 16 columns (2 x 8x8 matrices side by side)
@@ -37,7 +52,11 @@
 class ExoNaut_DotMatrix
 {
 public:
-    ExoNaut_DotMatrix(uint8_t clkPin = TM1640_CLK_PIN, uint8_t dinPin = TM1640_DIN_PIN);
+    // Constructor with port number
+    ExoNaut_DotMatrix(uint8_t port = DEFAULT_PORT);
+
+    // Alternatively initialize with specific pins
+    void setPins(uint8_t clkPin, uint8_t dinPin);
 
     void begin();
     void clear();
@@ -62,6 +81,7 @@ public:
 private:
     uint8_t _clkPin;
     uint8_t _dinPin;
+    uint8_t _port;
     uint8_t _displayBuffer[16]; // Buffer for display data
 
     // Scrolling text variables
