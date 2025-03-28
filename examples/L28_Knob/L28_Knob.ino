@@ -13,7 +13,10 @@
 
 // Create instances
 exonaut robot;                // Main robot instance
-ExoNaut_Knob knob;            // Knob on default pin (36)
+ExoNaut_Knob knob;            // Knob instance
+
+// Define which port the knob is connected to (1, 2, 6, or 8)
+#define KNOB_PORT 6          // Connected to port 2 (pin 32)
 
 // Control variables
 int motorSpeed = 0;           // Current motor speed (0-100)
@@ -44,9 +47,9 @@ void setup() {
     delay(300);
   }
   
-  // Initialize the knob
-  Serial.println("Initializing knob module...");
-  knob.begin();
+  // Initialize the knob with specified port
+  Serial.println("Initializing knob module on port " + String(KNOB_PORT) + "...");
+  knob.begin(KNOB_PORT);  // Initialize knob with port number
   
   // Configure knob
   Serial.println("Configuring knob...");
