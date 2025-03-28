@@ -11,8 +11,8 @@
  * The following table gives the port to pin mapping:
  *  __________________________
  *  PORT Number |   Pin Mapping
- *      6       |   CLK: 33, DIN: 25
- *      8       |   CLK: 26, DIN: 27
+ *      6       |   CLK: 25, DIN: 33
+ *      8       |   CLK: 27, DIN: 26
  */
 
 #ifndef EXONAUT_DOTMATRIX_H
