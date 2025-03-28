@@ -1,117 +1,165 @@
-/**********************************************************
- * L18_Dot_Matrix.ino
- * An example program to show how to use the 16x8 Dot Matrix display
+/*
+ * ExoNaut_DotMatrix_Demo.ino
  *
- * Author:	Andrew Gafford
- * Email:		agafford@spacetrek.com
- * Date:		May 20th, 2024
+ * Author: For ExoNaut Robot
+ * Date: March 28th, 2025
  *
- * The dot matrix display will only work if it is plugged into port 6 or port 8.
- * If it is plugged into port 6 the data pin is 33 and the clock pin is 25
- * If it is plugged into port 8 the data pin is 26 and the clock pin is 27
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
-**********************************************************/
-#include <TM1640.h>                     //include the TM1640 display driver library
-#include <TM16xxMatrix.h>               //include the TM16xx dot matrix library
+ * This sketch demonstrates the features of the ExoNaut_DotMatrix library,
+ * including displaying numbers and scrolling text.
+ */
 
-//PORT 6
-#define DISP_DATA_PIN     33            //use these for PORT 6
-#define DISP_CLK_PIN      25
+#include <Arduino.h>
+#include "ExoNaut.h"
+#include "ExoNaut_DotMatrix.h"
 
-//PORT8 8
-// #define DISP_DATA_PIN     26           //use these for PORT 8
-// #define DISP_CLK_PIN      27
+// Create instances
+exonaut robot;
+ExoNaut_DotMatrix dotMatrix;
 
-#define MATRIX_NUMCOLUMNS 16            //the number of columns on the display
-#define MATRIX_NUMROWS 8                //thenumber of rows on the display
-
-TM1640 module(DISP_DATA_PIN, DISP_CLK_PIN);                         // TM1640 module(data pin, clock pin)
-TM16xxMatrix matrix(&module, MATRIX_NUMCOLUMNS, MATRIX_NUMROWS);    // TM16xxMatrix matrix(object, columns, rows)
-
-bool fLoop=true;
-
-uint8_t image[8][16] = {                        //a two dimensional array to store bit data for an image
-  {1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,1},            //1 is equivilant to true and 0 is equivalent to false
-  {1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1},            //so each of the 1s will be turned on and each of the 0s
-  {1,0,1,1,1,0,1,1,1,1,0,1,1,1,0,1},            //will be turned off.  If you edit this make sure you keep
-  {1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1},            //it at 8 rows with 16 columns.
-  {1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1},
-  {1,0,1,1,1,0,1,1,1,1,0,1,1,1,0,1},
-  {1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1},
-  {1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,1}
-};
-
-void setup(){
-  module.clearDisplay();                        //clear the display
-  delay(500);                                   //wait 1 second
+void setup() {
+  // Initialize serial communication
+  Serial.begin(115200);
+  Serial.println("ExoNaut Dot Matrix Demo");
   
-  matrix.setAll(true);                          //turn all dots on
-  delay(1000);                                  //wait 1 second
-
-  // Columns binary
-  for(int i=0; i<MATRIX_NUMCOLUMNS; i++){
-    for(int j=0; j<=0xFF; j++){
-      matrix.setColumn(i,j);
-      delay(3);
-    }
-    delay(50);
-  }
-  matrix.setAll(false);                         //another way to clear the display
-  delay(1000);
-
-  // One pixel, column by column
-  for(int i=0; i<MATRIX_NUMCOLUMNS; i++){
-    for(int j=0; j<MATRIX_NUMROWS; j++){
-        matrix.setPixel(i,j, true);
-        delay(25);
-        matrix.setPixel(i,j, false);
-    }
-  }
-
-  // One pixel, row by row
-  for(int i=0; i<MATRIX_NUMROWS; i++){
-    for(int j=0; j<MATRIX_NUMCOLUMNS; j++){
-        matrix.setPixel(j,i, true);
-        delay(25);
-        matrix.setPixel(j,i, false);
-    }
-  }
+  // Initialize the ExoNaut robot
+  robot.begin();
+  
+  // Initialize the TM1640 dot matrix
+  dotMatrix.begin();
+  dotMatrix.setBrightness(TM1640_BRIGHTNESS_MAX);
+  
+  // Set robot's onboard LEDs
+  robot.setColorAll(0, 255, 0);  // Green
+  robot.show();
+  
+  // Quick test of all LEDs
+  dotMatrix.setAllOn();
+  delay(500);
+  dotMatrix.clear();
+  delay(500);
 }
 
-void loop(){
-  // Fill columns
-  for(int i=0; i<MATRIX_NUMROWS; i++)  {
-    for(int j=0; j<MATRIX_NUMCOLUMNS; j++)    {
-        matrix.setPixel(j, i, true);
-        delay(25);
-    }
+void loop() {
+  // PART 1: Number Display Demo
+  Serial.println("Number Display Demo");
+  
+  // Count up from 0 to 20
+  for (int i = 0; i <= 20; i++) {
+    dotMatrix.displayNumber(i);
+    delay(300);
   }
-  // Unfill columns
-  for(int i=0; i<MATRIX_NUMROWS; i++)  {
-    for(int j=0; j<MATRIX_NUMCOLUMNS; j++)    {
-        matrix.setPixel(j, i, false);
-        delay(15);
-    }
+  delay(1000);
+  
+  // Countdown with effect
+  Serial.println("Countdown Demo");
+  for (int i = 10; i >= 0; i--) {
+    dotMatrix.displayNumberWithEffect(i);
+    delay(1000);
   }
   
-
-  // draw image[8][16]
-  for(int i=0; i<MATRIX_NUMROWS; i++){
-    for(int j=0; j<MATRIX_NUMCOLUMNS; j++){
-        matrix.setPixel(j,i, image[i][j]);
-        delay(8);
-    }
+  // Flash 00 a few times
+  for (int i = 0; i < 3; i++) {
+    dotMatrix.setAllOff();
+    delay(250);
+    dotMatrix.displayNumber(0);
+    delay(250);
   }
-  delay(5000);
-  matrix.setAll(false);
+  
+  // PART 2: Text Scrolling Demo
+  Serial.println("Text Scrolling Demo");
+  
+  // Start scrolling text (3 complete scrolls)
+  dotMatrix.scrollText("HELLO EXONAUT WORLD!", 3);
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);  // Small delay to prevent excessive CPU usage
+  }
+  
+  // Pause before next demo
   delay(1000);
+  
+  // Scroll text with faster speed (1 scroll)
+  dotMatrix.scrollText("SPACE TREK", 1, 50);  // 50ms update speed (faster)
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
+  // Pause before next demo
+  delay(1000);
+  
+  // Countdown timer (minutes:seconds)
+  int seconds = 20;  // 1:30
+  
+  Serial.println("Countdown Timer Demo");
+  while (seconds > 0) {
+    int mins = seconds / 60;
+    int secs = seconds % 60;
+    
+    // Display as MM:SS
+    String timeStr = "";
+    
+    // Add leading zero for minutes if needed
+    if (mins < 10) {
+      timeStr += "0";
+    }
+    timeStr += String(mins);
+    timeStr += ":";
+    
+    // Add leading zero for seconds if needed
+    if (secs < 10) {
+      timeStr += "0";
+    }
+    timeStr += String(secs);
+    
+    // Scroll once
+    dotMatrix.scrollText(timeStr.c_str(), 1, 60);
+    
+    // Keep updating until complete
+    while (dotMatrix.isScrolling()) {
+      dotMatrix.updateScroll();
+      delay(10);
+    }
+    
+    // Decrement the seconds
+    seconds--;
+    
+    // Flash robot LEDs as timer approaches 0
+    if (seconds <= 10) {
+      robot.setColorAll(255, 0, 0);  // Red for final countdown
+    } else if (seconds <= 30) {
+      robot.setColorAll(255, 255, 0);  // Yellow for warning
+    }
+    robot.show();
+  }
+  
+  // Timer complete
+  dotMatrix.scrollText("TIME'S UP!", 2, 70);
+  
+  // Flash robot LEDs rapidly
+  for (int i = 0; i < 10; i++) {
+    robot.setColorAll(255, 0, 0);  // Red
+    robot.show();
+    delay(200);
+    robot.setColorAll(0, 0, 0);    // Off
+    robot.show();
+    delay(200);
+  }
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
+  // Reset LEDs to green
+  robot.setColorAll(0, 255, 0);  // Green
+  robot.show();
+  
+  // Pause before restarting the demo
+  delay(2000);
 }
