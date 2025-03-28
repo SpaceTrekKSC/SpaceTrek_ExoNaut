@@ -9,12 +9,10 @@
 
 #include "ExoNaut_Knob.h"
 
-ExoNaut_Knob::ExoNaut_Knob(uint8_t knobPin)
+ExoNaut_Knob::ExoNaut_Knob()
 {
-  // Set pin
-  _knobPin = knobPin;
-
   // Initialize values
+  _knobPin = 0; // Will be set in begin() based on port
   _lastRawValue = 0;
   _currentRawValue = 0;
   _minValue = 0;
@@ -28,8 +26,29 @@ ExoNaut_Knob::ExoNaut_Knob(uint8_t knobPin)
   _smoothingBufferFull = false;
 }
 
-bool ExoNaut_Knob::begin(void)
+bool ExoNaut_Knob::begin(uint8_t port)
 {
+  // Determine pin based on port number
+  switch (port)
+  {
+  case 1:
+    _knobPin = 36; // Port 1 is PIN 36
+    break;
+  case 2:
+    _knobPin = 32; // Port 2 is PIN 32
+    break;
+  case 6:
+    _knobPin = 33; // Port 6 is PIN 33
+    break;
+  case 8:
+    _knobPin = 26; // Port 8 is PIN 26
+    break;
+  default:
+    // Invalid port, use a default (Port 1)
+    _knobPin = 36;
+    break;
+  }
+
   // Configure analog input for knob
   pinMode(_knobPin, INPUT);
 
