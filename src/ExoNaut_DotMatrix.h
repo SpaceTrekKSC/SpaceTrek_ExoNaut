@@ -2,14 +2,14 @@
  * ExoNaut_DotMatrix.h
  *
  * Author: Based on ExoNaut code by Andrew Gafford
- * Date: March 5th, 2025
+ * Date: March 28th, 2025
  *
  * This library provides control for TM1640-based LED dot matrix displays
  * for the Space Trek ExoNaut Robot.
  */
 
-#ifndef __EXONAUT_DOTMATRIX_h
-#define __EXONAUT_DOTMATRIX_h
+#ifndef EXONAUT_DOTMATRIX_H
+#define EXONAUT_DOTMATRIX_H
 
 #include <Arduino.h>
 
@@ -31,6 +31,9 @@
 #define TM1640_BRIGHTNESS_MIN 0
 #define TM1640_BRIGHTNESS_MAX 7
 
+// Scrolling text constants
+#define SCROLL_SPEED_DEFAULT 80 // Milliseconds between scroll updates (lower = faster)
+
 class ExoNaut_DotMatrix
 {
 public:
@@ -49,13 +52,32 @@ public:
     void displayNumber(uint8_t number);           // Display a number from 0-99
     void displayNumberWithEffect(uint8_t number); // Display with scroll effect
 
+    // Text and scrolling functions
+    void drawChar(char character, int xOffset, int yOffset);
+    void scrollText(const char *text, uint8_t numScrolls = 0, uint8_t scrollSpeed = SCROLL_SPEED_DEFAULT);
+    void stopScroll();
+    bool isScrolling();
+    void updateScroll(); // Call this from loop() to update scrolling text
+
 private:
     uint8_t _clkPin;
     uint8_t _dinPin;
     uint8_t _displayBuffer[16]; // Buffer for display data
 
+    // Scrolling text variables
+    bool _scrollActive;
+    unsigned long _lastScrollTime;
+    int _scrollPosition;
+    String _scrollText;
+    int _totalScrollWidth;
+    uint8_t _scrollSpeed;
+    uint8_t _scrollsRemaining;
+    uint8_t _scrollCount;
+
     // Digit patterns for 5x7 font (0-9)
     static const uint8_t DIGITS[10][5];
+    // Character patterns for ASCII 32-127
+    static const uint8_t CHARS[96][5];
 
     void sendCommand(uint8_t cmd);
     void startTransmission();
@@ -63,10 +85,12 @@ private:
     void sendData(uint8_t address, uint8_t data);
     void sendData(uint8_t data);
 
-    // Helper functions for number display
+    // Helper functions
     void clearBuffer();
     void setPixel(int x, int y, bool state);
     void drawDigit(int digit, int xOffset, int yOffset);
+    int getCharWidth(char character);
+    int calculateTextPixelWidth(const char *text);
 };
 
-#endif // __EXONAUT_DOTMATRIX_h
+#endif // EXONAUT_DOTMATRIX_H
