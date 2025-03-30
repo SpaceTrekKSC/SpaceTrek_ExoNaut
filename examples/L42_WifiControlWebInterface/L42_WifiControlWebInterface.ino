@@ -1,10 +1,56 @@
 /*
- *L42_WiFiControlWebInterface.ino
+ * L42_WiFiControlWebInterface.ino
  *
- *Author: Ryan Bori
- *Date:	March 5th, 2025
+ * This example creates a web-based control interface for the ExoNaut robot
+ * using WiFi connectivity. Users can control the robot remotely through a
+ * browser by connecting to its IP address.
  *
+ * Features:
+ * - Forward/backward/left/right movement controls
+ * - Speed adjustment slider
+ * - LED color control
+ * - Status feedback
  *
+ * Requirements:
+ * - WiFi network connection
+ * - Web browser to access the control interface
+ *
+ * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 30, 2025
+ *
+ * Commands:
+ * exonaut bot;                          //This command creates the main robot instance
+ *                                       //This is the object that handles motors and core functions
+ *
+ * WebServer server(80);                 //This command creates a web server on port 80
+ *                                       //The server handles incoming HTTP requests
+ *
+ * WiFi.begin(ssid, password);           //This command connects to a WiFi network
+ *                                       //Parameters: network name, network password
+ *
+ * server.on(path, handler);             //This command sets up routes for the web server
+ *                                       //Parameters: URL path, function to handle the request
+ *
+ * server.begin();                       //This command starts the web server
+ *                                       //Must be called after routes are set up
+ *
+ * server.handleClient();                //This command processes incoming client requests
+ *                                       //Should be called regularly in the loop function
+ *
+ * server.arg(name);                     //This command retrieves an argument from an HTTP request
+ *                                       //Parameter: name of the argument to retrieve
+ *
+ * server.send(code, type, content);     //This command sends a response to the client
+ *                                       //Parameters: HTTP status code, content type, content
+ *
+ * bot.set_motor_speed(left, right);     //This command sets the motor speeds
+ *                                       //Parameters: left motor speed, right motor speed (-100 to 100)
+ *
+ * bot.setColorAll(r, g, b);             //This command sets all LEDs to the same color
+ *                                       //Parameters: red, green, blue values (0-255)
+ *
+ * bot.show();                           //This command updates the physical LED display
  */
 
 #include <WiFi.h>
