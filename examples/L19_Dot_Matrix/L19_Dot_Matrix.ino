@@ -5,6 +5,7 @@
  * to display numbers and animations
  *
  * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
  * Date: March 30, 2025
  */
 
