@@ -1,5 +1,5 @@
 /*
- * L11_MP3_Playback.ino
+ * L29_MP3_Playback.ino
  *
  * Example sketch for demonstrating the ExoNaut_MP3 library
  * with the Space Trek ExoNaut robot.
