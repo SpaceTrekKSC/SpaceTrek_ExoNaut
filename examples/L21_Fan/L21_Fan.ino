@@ -1,12 +1,37 @@
 /*
- * Simple Fan Test for ESP32
- * 
+ * L05_Fan_Control.ino
+ *
  * This example uses basic digital output to control a fan motor
  * instead of PWM which might not be compatible with all ESP32 versions.
  * 
  * Connect:
  * - M- to GPIO 33
  * - M+ to GPIO 25
+ *
+ * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 30, 2025
+
+Commands:
+exonaut robot;                              //This command creates an ExoNaut object called 'robot'
+                                           //This is the object that handles basic robot functions
+
+robot.begin();                              //This command initializes the robot systems
+                                           //It is used once at the beginning of the program
+
+robot.setColorAll(r, g, b);                 //This command sets all LEDs to the same RGB color
+                                           //Parameters are red (0-255), green (0-255), blue (0-255)
+
+robot.show();                               //This command updates the physical LED display with current color settings
+
+pinMode(pin, mode);                         //Arduino function to configure a GPIO pin
+                                           //Parameters: pin number, INPUT or OUTPUT mode
+
+digitalWrite(pin, value);                   //Arduino function to set a digital pin HIGH or LOW
+                                           //Parameters: pin number, HIGH (1) or LOW (0)
+
+delay(ms);                                  //Arduino function to pause program execution
+                                           //Parameter: time in millisecondsRetryClaude can make mistakes. Please double-check responses.
  */
 
 #include "ExoNaut.h"
