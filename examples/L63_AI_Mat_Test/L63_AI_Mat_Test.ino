@@ -1,15 +1,48 @@
 /**************************************************
- * ExoNaut_Multi_Station_Navigation.ino
+ * L63_AI_Mat_Test.ino
  * A program to navigate through 3 stations with different sensing modes
  *
- * Author: [Your Name]
- * Date: March 26, 2025
+ * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 30, 2025
  * 
  * Station 1: Color detection (wait for color ID 1)
  * Station 2: Landmark recognition (ID 1 = right turn, ID 2 = left turn)
  * Station 3: Take another right or left based on Station 2 decision
  * 
-**************************************************/
+ * Commands:
+ * exonaut robot;                        //This command creates the main robot instance
+ *                                       //This is the object that handles motors and core functions
+ *
+ * lineFollower lf;                      //This command creates a line follower object
+ *                                       //Used to read the state of the line following sensors
+ *
+ * ExoNaut_AICam camera;                 //This command creates an AI Camera object
+ *                                       //Handles vision-based detection and recognition
+ *
+ * robot.begin();                        //This command initializes the robot systems
+ *
+ * camera.begin();                       //This command initializes the camera module
+ *
+ * robot.stop_motor(motorID);            //This command stops the specified motors
+ *                                       //0 = both motors, 1 = left motor, 2 = right motor
+ *
+ * camera.changeFunc(mode);              //This command changes the camera's operating mode
+ *                                       //Different modes include: APPLICATION_LINEFOLLOW, 
+ *                                       //APPLICATION_COLORDETECT, APPLICATION_LANDMARK
+ *
+ * lf.readLineFollower(lineData);        //This command reads the line follower sensors
+ *                                       //Updates the lineData variable with sensor values
+ *
+ * camera.updateResult();                //This command updates recognition results from the camera
+ *
+ * camera.colorIdDetected(id);           //This command checks if a specific color ID is detected
+ *
+ * camera.landmarkIdDetected(id);        //This command checks if a specific landmark ID is detected
+ *
+ * robot.set_motor_speed(left, right);   //This command sets the motor speeds
+ *                                       //Parameters are for left and right motors (-100 to 100)
+ **************************************************/
 
 #include <ExoNaut.h>                          // Include the ExoNaut library
 #include <ExoNaut_LineFollower.h>             // Include the ExoNaut Line Follower library
