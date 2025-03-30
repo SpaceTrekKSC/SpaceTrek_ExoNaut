@@ -1,11 +1,32 @@
 /*
-* L19_DotMatrix.ino
-*
-* 
-*
-* Author: Ryan Bori
-* Date: March 5th, 2025
-*/
+ * L19_DotMatrix.ino
+ *
+ * This example demonstrates how to use the ExoNaut Dot Matrix
+ * to display numbers and animations
+ *
+ * Author: Ryan Bori
+ * Date: March 30, 2025
+ */
+
+Commands:
+ExoNaut_DotMatrix dotMatrix;               //This command creates a DotMatrix object called 'dotMatrix'
+                                           //This is the object that handles all dot matrix display functions
+
+dotMatrix.begin();                          //This command initializes the display hardware and prepares it for use
+                                           //It is used once at the beginning of the program
+
+dotMatrix.setBrightness(brightness);        //This command adjusts the brightness level of the display
+                                           //Values range from 0 (darkest) to 7 (brightest)
+
+dotMatrix.clear();                          //This command turns off all LEDs and clears the display buffer
+
+dotMatrix.setAllOn();                       //This command turns on all LEDs in the display
+dotMatrix.setAllOff();                      //This command turns off all LEDs (same as clear)
+
+dotMatrix.displayNumber(number);            //This command shows a number (0-99) on the display
+
+dotMatrix.scrollText(text, numScrolls, speed); //This command scrolls text across the display
+                                              //Parameters: text to display, number of times to scroll, speed
 
 #include <Arduino.h>
 #include "ExoNaut.h"
