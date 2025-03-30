@@ -1,11 +1,53 @@
 /*
- * ExoNaut_KnobExample.ino
- * 
+ * L10_Knob_Control.ino
+ *
  * Example sketch for the ExoNaut knob module.
  * This sketch demonstrates using a potentiometer to control
  * the robot's motors and LEDs.
  * 
- * Created: March 3, 2025
+ * The program reads the knob position and uses it to adjust
+ * motor speed and LED colors in real-time with visual feedback.
+ *
+ * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 30, 2025
+ *
+ * Commands:
+ * exonaut robot;                         //This command creates the main robot instance
+ *                                        //This is the object that handles motors and core functions
+ *
+ * ExoNaut_Knob knob;                     //This command creates a Knob object called 'knob'
+ *                                        //This is the object that handles potentiometer input
+ *
+ * knob.begin(PORT);                      //This command initializes the knob with the specified port number
+ *                                        //The port number determines which analog pin is used
+ *
+ * knob.setSmoothing(enable, samples);    //This command enables or disables value smoothing
+ *                                        //Parameters: boolean to enable/disable, number of samples to average
+ *
+ * knob.setRange(minVal, maxVal);         //This command sets the default output range for knob readings
+ *                                        //Maps the raw analog value (0-4095) to the specified range
+ *
+ * knob.update();                         //This command updates the current knob reading
+ *                                        //Should be called regularly in the loop before reading values
+ *
+ * knob.readRaw();                        //This command reads the raw analog value from the knob (0-4095)
+ *
+ * knob.readMapped();                     //This command reads the knob value mapped to the set range
+ *
+ * knob.hasChanged(threshold);            //This command detects if the knob value has changed
+ *                                        //Parameter: threshold value for minimum change to detect
+ *
+ * robot.set_motor_speed(left, right);    //This command sets both motor speeds
+ *                                        //Parameters: left motor speed, right motor speed
+ *
+ * robot.setColor(index, r, g, b);        //This command sets the color of an individual LED
+ *                                        //Parameters: LED index, red, green, blue values (0-255)
+ *
+ * robot.setColorAll(r, g, b);            //This command sets all LEDs to the same color
+ *                                        //Parameters: red, green, blue values (0-255)
+ *
+ * robot.show();                          //This command updates the physical LED display
  */
 
 #include <ExoNaut.h>       // Main ExoNaut library
