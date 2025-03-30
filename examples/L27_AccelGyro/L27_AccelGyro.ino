@@ -1,3 +1,40 @@
+/*
+ * L06_AccelGyro_Monitor.ino
+ *
+ * This example creates an interactive serial monitor interface
+ * to display and control the ExoNaut's MPU6050 accelerometer
+ * and gyroscope sensor.
+ * 
+ * The program displays accelerometer, gyroscope, and orientation
+ * data and allows calibration through a simple menu system.
+ *
+ * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 30, 2025
+ *
+ * Commands:
+ * ExoNautAccelGyro robot;                     //This command creates an AccelGyro object called 'robot'
+ *                                            //This is the object that handles the MPU6050 sensor
+ *
+ * robot.beginIMU();                           //This command initializes the MPU6050 sensor
+ *                                            //Returns true if successful, false if initialization failed
+ *
+ * robot.calibrateIMU();                       //This command performs gyroscope calibration
+ *                                            //The robot should remain still during calibration
+ *
+ * robot.updateIMU();                          //This command reads the latest sensor data
+ *                                            //Should be called regularly in the loop
+ *
+ * robot.getAcceleration(&ax, &ay, &az);       //This command retrieves the current acceleration values
+ *                                            //Parameters are pointers to float variables for x, y, z axes
+ *
+ * robot.getRotation(&gx, &gy, &gz);           //This command retrieves the current rotation rate values
+ *                                            //Parameters are pointers to float variables for x, y, z axes
+ *
+ * robot.getOrientation(&pitch, &roll, &yaw);  //This command retrieves the current orientation angles
+ *                                            //Parameters are pointers to float variables for pitch, roll, yaw
+ */
+
 #include "ExoNaut.h"
 #include "ExoNaut_AccelGyro.h"
 
