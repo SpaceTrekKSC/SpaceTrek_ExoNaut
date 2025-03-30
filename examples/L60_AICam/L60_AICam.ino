@@ -2,7 +2,59 @@
  * L60_AICam.ino
  *
  * This sketch allows control of the Space Trek ExoNaut Robot and AI Camera
- * through serial monitor commands.
+ * through serial monitor commands. It provides an interactive interface
+ * to explore different camera vision modes, motor control, and LED settings
+ * with full feedback through the serial monitor.
+ *
+ * Features:
+ * - Multiple vision modes: face detection, object detection, color detection, etc.
+ * - Motor control with speed adjustment
+ * - RGB LED color setting
+ * - Camera LED control
+ * - I2C device scanning and communication testing
+ * - Detailed status reports
+ *
+ * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 30, 2025
+ *
+ * Commands:
+ * exonaut robot;                          //This command creates the main robot instance
+ *                                         //This is the object that handles motors and core functions
+ *
+ * ExoNaut_AICam camera;                   //This command creates an AI Camera object called 'camera'
+ *                                         //This is the object that handles vision detection functions
+ *
+ * camera.begin();                         //This command initializes the camera module and sets up I2C communication
+ *
+ * camera.currentFunc();                   //This command gets the current application mode that the camera is operating in
+ *
+ * camera.changeFunc(mode);                //This command changes the camera's operating mode
+ *                                         //Parameters: mode number (APPLICATION_FACEDETECT, APPLICATION_OBJDETECT, etc.)
+ *
+ * camera.updateResult();                  //This command updates all recognition results from the camera
+ *                                         //Should be called before checking detection results
+ *
+ * camera.setLed(state);                   //This command turns the camera's LED on or off
+ *                                         //Parameter: boolean state (true for on, false for off)
+ *
+ * camera.numOfTotalFaceDetected();        //This command returns the total number of faces detected
+ *
+ * camera.getFaceOfIndex(index, &result);  //This command gets information about a face at a specific index
+ *                                         //Parameters: face index, pointer to result structure
+ *
+ * camera.objIdDetected(id);               //This command checks if a specific object ID has been detected
+ *                                         //Parameter: object ID constant (Person, Dog, Cat, etc.)
+ *
+ * camera.qrCodeDetected();                //This command checks if a QR code has been detected
+ *
+ * camera.anyLineDetected();               //This command checks if any line has been detected
+ *
+ * robot.set_motor_speed(left, right);     //This command sets both motor speeds
+ *                                         //Parameters: left motor speed, right motor speed (-100 to 100)
+ *
+ * robot.setColorAll(r, g, b);             //This command sets all LEDs to the same color
+ *                                         //Parameters: red, green, blue values (0-255)
  */
 
 #include "ExoNaut.h"
