@@ -7,7 +7,6 @@
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 30, 2025
- */
 
 Commands:
 ExoNaut_DotMatrix dotMatrix;               //This command creates a DotMatrix object called 'dotMatrix'
@@ -28,6 +27,7 @@ dotMatrix.displayNumber(number);            //This command shows a number (0-99)
 
 dotMatrix.scrollText(text, numScrolls, speed); //This command scrolls text across the display
                                               //Parameters: text to display, number of times to scroll, speed
+*/
 
 #include <Arduino.h>
 #include "ExoNaut.h"
