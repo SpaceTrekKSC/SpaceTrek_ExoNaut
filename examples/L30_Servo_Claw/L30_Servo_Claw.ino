@@ -1,5 +1,29 @@
 /*
- * ExoNaut Claw Control - Using ExoNaut Library Functions
+ * L30_Servo_Claw.ino
+ *
+ * This example demonstrates how to control a robotic claw
+ * attached to the ExoNaut robot using bus servos.
+ * 
+ * The program toggles the claw between open and closed positions
+ * at regular intervals, illustrating basic servo control.
+ *
+ * Author: Ryan Bori
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 31, 2025
+ *
+ * Commands:
+ * exonaut robot;                        //This command creates the main robot instance
+ *                                       //This is the object that handles all robot functions
+ *
+ * robot.begin();                        //This command initializes the robot systems
+ *
+ * robot.beginBusServo();                //This command initializes the bus servo system
+ *                                       //Must be called before using any servo functions
+ *
+ * robot.bus_servo_set_pose(id, pos, time); //This command sets a servo to a specific position
+ *                                          //Parameters: servo ID, position value, movement time in ms
+ *                                          //Position value range depends on the specific servo
+ *                                          //Movement time controls how fast the servo moves
  */
 
 #include "ExoNaut.h"
