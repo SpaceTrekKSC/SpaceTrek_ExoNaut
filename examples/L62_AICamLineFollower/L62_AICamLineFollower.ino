@@ -1,21 +1,16 @@
-
 /*
- * L20_LineFollower.ino
+ * L62AICamLineFollower.ino
  *
- * Example sketch demonstrating line following functionality
- * using the ExoNaut robot with AI Camera
+ * This sketch demonstrates how to use the AI camera line following 
+ * functionality on the Space Trek ExoNaut Robot.
  * 
- * This example uses the ExoNaut_AICamLF class to simplify line following
- * tasks with the Space Trek ExoNaut Robot.
+ * The program detects lines with the camera and controls the robot's
+ * movement to follow the line, including strategies for handling
+ * lost lines and recovering the path.
  *
  * Author: Ryan Bori
- * Email: ryan.bori@spacetrek.com 
- * Date: March 30, 2025
- * 
- * Hardware Requirements:
- * - Space Trek ExoNaut Robot
- * - AI Camera mounted on the robot
- * - Black line on white background (or white line on black background)
+ * Email: ryan.bori@spacetrek.com
+ * Date: March 31, 2025
  *
  * Commands:
  * exonaut robot;                        //This command creates the main robot instance
@@ -29,35 +24,27 @@
  *
  * robot.begin();                        //This command initializes the robot systems
  *
- * camera.begin();                       //This command initializes the camera module
- *
  * lineFollower.begin(&robot, &camera);  //This command initializes the line follower with robot and camera references
  *                                       //Returns true if initialization was successful
  *
- * lineFollower.update();                //This command updates the camera data
- *                                       //Should be called regularly before using line detection functions
+ * lineFollower.update();                //This command updates the line follower data
+ *                                       //Should be called regularly in the loop
  *
- * lineFollower.isLineDetected(lineId);  //This command checks if a specific line ID is currently detected
- *                                       //Returns true if the line is visible, false otherwise
- *
- * lineFollower.getLineStatus(lineId);   //This command returns the status of a specific line
+ * lineFollower.getLineStatus(lineId);   //This command gets the current status of a specific line
  *                                       //Returns LINE_STATUS_CENTERED, LINE_STATUS_LEFT, etc.
  *
- * lineFollower.followLine(lineId, speed, factor); //This command follows a line using built-in algorithms
- *                                                 //Parameters: line ID, base speed, turning factor
+ * lineFollower.isLineDetected(lineId);  //This command checks if a specific line ID is detected
+ *                                       //Returns true if the line is visible, false otherwise
  *
- * lineFollower.printLineData(lineId);   //This command prints line data to the serial monitor
- *                                       //Useful for debugging line following behavior
+ * lineFollower.getLineData(lineId, &data); //This command gets detailed data about a detected line
+ *                                          //Fills the provided WonderCamLineResult structure
+ *
+ * lineFollower.getLineOffset(lineId);   //This command gets the offset of a line from center
+ *                                       //Negative values mean left, positive values mean right
  *
  * robot.set_motor_speed(left, right);   //This command sets the motor speeds
  *                                       //Parameters are for left and right motors (-100 to 100)
- *
- * robot.setColorAll(r, g, b);           //This command sets all LEDs to the same color
- *                                       //Parameters: red, green, blue values (0-255)
- *
- * robot.clear();                        //This command turns off all LEDs
  */
-
 #include "ExoNaut.h"
 #include "ExoNaut_AICam.h"
 #include "ExoNaut_AICamLF.h"
@@ -68,215 +55,166 @@ ExoNaut_AICam camera;
 ExoNaut_AICamLF lineFollower;
 
 // Line following parameters
-#define LINE_ID 1               // ID of the line to follow (configure in AI Camera)
-#define BASE_SPEED 45           // Base motor speed (0-100)
-#define TURN_FACTOR 30          // How aggressively to turn (higher = more aggressive)
-#define UPDATE_INTERVAL 50      // Update interval in milliseconds
+#define LINE_ID 1             // ID of the line we want to follow (typically 1)
+#define BASE_SPEED 20.0f      // Base motor speed (0-100)
+#define TURN_FACTOR 10.0f     // How strongly to respond to line deviations
+#define SCAN_INTERVAL 50      // Milliseconds between line position updates
+#define LOST_SPEED 20.0f      // Slower speed when trying to find a lost line
 
-// LED indicator colors
-#define LED_LINE_DETECTED 0, 255, 0    // Green when line is detected
-#define LED_LINE_LOST 255, 0, 0        // Red when line is lost
-#define LED_CENTERED 0, 0, 255         // Blue when line is centered
-
-// Timing variables
-unsigned long lastUpdateTime = 0;
+// Status tracking
+unsigned long lastScanTime = 0;
+uint8_t lastLineStatus = LINE_STATUS_NONE;
 
 void setup() {
   // Initialize serial communication
   Serial.begin(115200);
-  Serial.println("ExoNaut Line Follower Example");
+  Serial.println("ExoNaut Line Following Demo");
   
   // Initialize the robot
   robot.begin();
+  delay(1000);
   
-  // Initialize the AI Camera
-  camera.begin();
-  
-  // Initialize line follower
+  // Initialize the line follower
   if (!lineFollower.begin(&robot, &camera)) {
-    Serial.println("Failed to initialize line follower!");
-    
-    // Show error with red LEDs
-    robot.setColorAll(255, 0, 0);
-    
-    // Stop execution
-    while (1) {
-      delay(100);
-    }
+    Serial.println("Failed to initialize line follower. Check connections!");
+    while(1); // Stop if initialization fails
   }
   
-  Serial.println("Line follower initialized");
-  
-  // Show startup pattern on LEDs
-  startupLedSequence();
-  
-  // Wait a moment for everything to stabilize
-  delay(1000);
+  Serial.println("Line follower initialized successfully!");
+  Serial.println("Waiting for a line to be detected...");
 }
 
 void loop() {
-  // Update at regular intervals
-  if (millis() - lastUpdateTime >= UPDATE_INTERVAL) {
-    lastUpdateTime = millis();
+  // Check if it's time to update the line position
+  if (millis() - lastScanTime >= SCAN_INTERVAL) {
+    lastScanTime = millis();
     
-    // Update camera data
+    // Update line follower data
     lineFollower.update();
     
-    // Check if line is detected
-    if (lineFollower.isLineDetected(LINE_ID)) {
-      // Get line status
-      uint8_t lineStatus = lineFollower.getLineStatus(LINE_ID);
-      
-      // Update LED based on line status
-      updateLedIndicator(lineStatus);
-      
-      // Print line data every 20 updates (about once per second)
-      static int updateCount = 0;
-      if (updateCount++ % 20 == 0) {
-        lineFollower.printLineData(LINE_ID);
-      }
-      
-      // Follow the line using the library's built-in line following function
-      lineFollower.followLine(LINE_ID, BASE_SPEED, TURN_FACTOR);
-    } 
-    else {
-      // Line not detected
-      Serial.println("Line not detected");
-      
-      // Set indicator LEDs to red
-      robot.setColorAll(LED_LINE_LOST);
-      
-      // Stop the robot
-      robot.set_motor_speed(0, 0);
-      
-      // Alternative: You could implement a search pattern here
-      // searchForLine();
-    }
-  }
-  
-  // Check if button A is pressed
-  if (digitalRead(BUTTON_A_PIN) == LOW) {
-    // Button A pressed - stop the robot
-    Serial.println("Button A pressed - stopping");
-    robot.set_motor_speed(0, 0);
+    // Get current line status
+    uint8_t lineStatus = lineFollower.getLineStatus(LINE_ID);
     
-    // Flash LEDs
-    for (int i = 0; i < 3; i++) {
-      robot.setColorAll(255, 255, 255);
-      delay(100);
-      robot.setColorAll(0, 0, 0);
-      delay(100);
+    // Print line information if status changed
+    if (lineStatus != lastLineStatus) {
+      printLineStatus(lineStatus);
+      lastLineStatus = lineStatus;
     }
     
-    // Wait for button release
-    while (digitalRead(BUTTON_A_PIN) == LOW) {
-      delay(10);
-    }
-  }
-  
-  // Check if button B is pressed
-  if (digitalRead(BUTTON_B_PIN) == LOW) {
-    // Button B pressed - print all detected lines
-    Serial.println("Button B pressed - displaying all lines");
-    lineFollower.printAllLines();
-    
-    // Wait for button release
-    while (digitalRead(BUTTON_B_PIN) == LOW) {
-      delay(10);
-    }
+    // Control robot based on line position
+    controlRobot(lineStatus);
   }
 }
 
-// Update the LED indicators based on line status
-void updateLedIndicator(uint8_t lineStatus) {
+void controlRobot(uint8_t lineStatus) {
   switch (lineStatus) {
     case LINE_STATUS_CENTERED:
-      // Blue when centered
-      robot.setColorAll(LED_CENTERED);
+      // Line is centered - move forward at base speed
+      robot.set_motor_speed(BASE_SPEED, BASE_SPEED);
       break;
-    
+      
     case LINE_STATUS_LEFT:
-      // Amber when line is to the left
-      robot.setColorAll(255, 128, 0);
+      // Line is to the left - turn left
+      robot.set_motor_speed(BASE_SPEED - TURN_FACTOR, BASE_SPEED + TURN_FACTOR);
       break;
-    
+      
     case LINE_STATUS_RIGHT:
-      // Purple when line is to the right
-      robot.setColorAll(255, 0, 255);
+      // Line is to the right - turn right
+      robot.set_motor_speed(BASE_SPEED + TURN_FACTOR, BASE_SPEED - TURN_FACTOR);
       break;
-    
+      
     case LINE_STATUS_LOST:
-      // Red when line is lost
-      robot.setColorAll(LED_LINE_LOST);
+      // Line was lost - slow down and seek
+      searchForLine();
       break;
-    
+      
     default:
-      // White for other states
-      robot.setColorAll(100, 100, 100);
+      // No line or unknown status - stop and scan
+      if (!scanForLine()) {
+        // If scanning doesn't find a line, stop
+        robot.set_motor_speed(0, 0);
+      }
       break;
   }
 }
 
-// LED startup sequence
-void startupLedSequence() {
-  // Clear all LEDs
-  robot.clear();
+// Function to search for a lost line
+void searchForLine() {
+  // Get last detected offset to determine which way to turn
+  int16_t lastOffset = lineFollower.getLineOffset(LINE_ID);
   
-  // Sequentially light up each LED
-  for (int i = 0; i < NUM_PIXELS; i++) {
-    robot.setColor(i, 0, 255, 0);  // Green
-    robot.show();
-    delay(100);
+  if (lastOffset < 0) {
+    // Line was last seen on the left, so turn left to find it
+    robot.set_motor_speed(0, LOST_SPEED);
+  } else {
+    // Line was last seen on the right, so turn right to find it
+    robot.set_motor_speed(LOST_SPEED, 0);
   }
-  
-  // Flash all LEDs
-  for (int i = 0; i < 3; i++) {
-    robot.setColorAll(0, 0, 0);  // Off
-    robot.show();
-    delay(100);
-    robot.setColorAll(0, 0, 255);  // Blue
-    robot.show();
-    delay(100);
-  }
-  
-  // Set all LEDs to green
-  robot.setColorAll(0, 255, 0);
 }
 
-// Advanced: Search pattern for finding the line again
-void searchForLine() {
-  static int searchState = 0;
-  static unsigned long searchStartTime = 0;
+// Function to scan for a line by rotating in place
+bool scanForLine() {
+  static int scanDirection = 1;  // 1 for right, -1 for left
+  static unsigned long scanStartTime = 0;
   
-  // Start a new search if not already searching
-  if (searchState == 0) {
-    searchStartTime = millis();
-    searchState = 1;
+  // If we just started scanning
+  if (scanStartTime == 0) {
+    scanStartTime = millis();
   }
   
-  // Time-based searching pattern
-  unsigned long searchTime = millis() - searchStartTime;
-  
-  if (searchTime < 1000) {
-    // First, rotate slowly clockwise
-    robot.set_motor_speed(-20, 20);
-  } 
-  else if (searchTime < 3000) {
-    // Then, rotate counter-clockwise for longer
-    robot.set_motor_speed(20, -20);
-  } 
-  else if (searchTime < 4000) {
-    // Return to clockwise rotation
-    robot.set_motor_speed(-20, 20);
-  } 
-  else {
-    // Reset search if line not found after timeout
-    searchState = 0;
-    robot.set_motor_speed(0, 0);
+  // Check if we've been scanning for too long (3 seconds)
+  if (millis() - scanStartTime > 3000) {
+    // Switch direction
+    scanDirection *= -1;
+    scanStartTime = millis();
   }
   
-  // Check if line was found during search
+  // Rotate in place slowly
+  robot.set_motor_speed(LOST_SPEED * scanDirection, -LOST_SPEED * scanDirection);
+  
+  // Check if we found a line during scanning
   if (lineFollower.isLineDetected(LINE_ID)) {
-    searchState = 0;  // Reset search state
+    // Reset scan timer
+    scanStartTime = 0;
+    return true;
+  }
+  
+  return false;
+}
+
+// Function to print line status information
+void printLineStatus(uint8_t status) {
+  Serial.print("Line status: ");
+  
+  switch (status) {
+    case LINE_STATUS_NONE:
+      Serial.println("NONE - No line detected");
+      break;
+    case LINE_STATUS_CENTERED:
+      Serial.println("CENTERED - Line is in the center");
+      break;
+    case LINE_STATUS_LEFT:
+      Serial.println("LEFT - Line is to the left");
+      break;
+    case LINE_STATUS_RIGHT:
+      Serial.println("RIGHT - Line is to the right");
+      break;
+    case LINE_STATUS_LOST:
+      Serial.println("LOST - Line was detected but now lost");
+      break;
+    default:
+      Serial.println("UNKNOWN");
+      break;
+  }
+  
+  // If a line is detected, print additional info
+  if (lineFollower.isLineDetected(LINE_ID)) {
+    WonderCamLineResult lineData;
+    if (lineFollower.getLineData(LINE_ID, &lineData)) {
+      Serial.print("  Angle: ");
+      Serial.print(lineData.angle);
+      Serial.print(" degrees, Offset: ");
+      Serial.println(lineData.offset);
+    }
   }
 }
