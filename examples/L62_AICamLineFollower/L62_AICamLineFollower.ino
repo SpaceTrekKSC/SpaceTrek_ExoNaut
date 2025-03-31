@@ -1,5 +1,5 @@
 /*
- * L62AICamLineFollower.ino
+ * L62_AICamLineFollower.ino
  *
  * This sketch demonstrates how to use the AI camera line following 
  * functionality on the Space Trek ExoNaut Robot.
