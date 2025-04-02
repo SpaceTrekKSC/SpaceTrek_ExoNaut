@@ -56,9 +56,11 @@ const int SECOND_DURATION = 1000;    // Duration of one second in milliseconds
 const float SPIN_SPEED = 30.0;       // Motor speed for spinning
 const int MAX_NUMBER = 5;            // Maximum number to recognize
 
-// LED indicator constants
-const int NUM_LEDS = 6;              // Number of onboard NeoPixels
-// Colors for different modes
+// Confidence thresholds
+const float LANDMARK_CONFIDENCE_THRESHOLD = 0.5;  // 50% confidence for landmarks
+const float NUMBER_CONFIDENCE_THRESHOLD = 0.7;    // 70% confidence for numbers
+
+// LED indicator constants - colors for different modes
 const uint8_t LANDMARK_COLOR_R = 0;    // Blue for landmark recognition
 const uint8_t LANDMARK_COLOR_G = 0;
 const uint8_t LANDMARK_COLOR_B = 255;
@@ -93,7 +95,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("ExoNaut AI Camera Demo");
   
-  // Initialize the robot
+  // Initialize the robot (this also initializes the onboard LEDs)
   robot.begin();
   
   // Initialize the camera
@@ -107,6 +109,9 @@ void setup() {
   
   // Set initial LED state - blue for landmark recognition
   updateLEDs();
+  
+  // Startup animation to show system is ready
+  startupAnimation();
   
   // Wait for initialization
   delay(1000);
@@ -137,8 +142,35 @@ void loop() {
   delay(50);
 }
 
+void startupAnimation() {
+  // Perform a color wipe animation
+  for (int i = 0; i < NUM_PIXELS; i++) {
+    robot.clear();
+    for (int j = 0; j <= i; j++) {
+      robot.setColor(j, 0, 100, 100);  // Teal color
+    }
+    robot.show();
+    delay(100);
+  }
+  
+  // Flash all LEDs
+  robot.setColorAll(100, 100, 100);
+  robot.show();
+  delay(200);
+  robot.clear();
+  robot.show();
+  delay(200);
+  robot.setColorAll(100, 100, 100);
+  robot.show();
+  delay(200);
+  robot.clear();
+  robot.show();
+  
+  // Set initial state color
+  updateLEDs();
+}
+
 void updateLEDs() {
-  // Set all LEDs to the color corresponding to the current state
   switch (currentState) {
     case LANDMARK_RECOGNITION:
       // Blue for landmark recognition
@@ -155,20 +187,31 @@ void updateLEDs() {
       robot.setColorAll(SPINNING_COLOR_R, SPINNING_COLOR_G, SPINNING_COLOR_B);
       break;
   }
+  robot.show();
+  
+  Serial.print("Updated LEDs for state: ");
+  Serial.println(currentState);
 }
 
 void handleLandmarkRecognition() {
-  // Check if a landmark is detected
-  if (camera.anyLandmarkDetected()) {
-    // Check which landmark was detected
-    if (camera.landmarkIdDetected(1)) {
-      Serial.println("Landmark ID 1 detected. Will spin clockwise.");
+  // Get the landmark with the highest probability
+  int landmarkId = camera.landmarkIdWithMaxProb();
+  float confidence = camera.landmarkMaxProb();
+  
+  // Check if confidence is above our threshold (50%)
+  if (confidence > LANDMARK_CONFIDENCE_THRESHOLD) {
+    if (landmarkId == 3) {
+      Serial.print("Landmark ID 1 detected with confidence: ");
+      Serial.println(confidence);
+      Serial.println("Will spin clockwise.");
       leftMotorSpeed = SPIN_SPEED;
       rightMotorSpeed = -SPIN_SPEED;  // Clockwise spin
       directionDetermined = true;
     } 
-    else if (camera.landmarkIdDetected(2)) {
-      Serial.println("Landmark ID 2 detected. Will spin counter-clockwise.");
+    else if (landmarkId == 2) {
+      Serial.print("Landmark ID 2 detected with confidence: ");
+      Serial.println(confidence);
+      Serial.println("Will spin counter-clockwise.");
       leftMotorSpeed = -SPIN_SPEED;
       rightMotorSpeed = SPIN_SPEED;  // Counter-clockwise spin
       directionDetermined = true;
@@ -190,7 +233,7 @@ void handleNumberRecognition() {
   int number = camera.numberWithMaxProb();
   float confidence = camera.numberMaxProb();
   
-  if (confidence > 0.7) {  // Only proceed if confidence is high enough
+  if (confidence > NUMBER_CONFIDENCE_THRESHOLD) {  // Use the constant for number confidence
     // Make sure number is between 1 and MAX_NUMBER
     if (number >= 1 && number <= MAX_NUMBER) {
       Serial.print("Number detected: ");
