@@ -1,9 +1,9 @@
 /*
  *ExoNaut_RGB_LED.h
  *
- *Author:	Andrew Gafford
- *Email:		agafford@spacetrek.com
- *Date:		May 20th, 2024
+ *Author:    Andrew Gafford
+ *Email:        agafford@spacetrek.com
+ *Date:        May 20th, 2024
  *
  *This library is for controlling the Space Trek ExoNaut Robot's RGB Ultrasonic
  *distance sensor.  It provides functions to read the distance and set the RGB LEDS.
@@ -12,21 +12,19 @@
  *if you would like to experiment with additional features and controls. The RGB LED
  *module will work on ports 2, 6 and 8 of the ExoNout robot.  If you are using the
  *Adafruit library the following table gives the port to pin mapping.
- *	__________________________
- *	PORT Number |	Pin Number
- *		2		|		32
- *		6		|		33
- *		8		|		26
+ *    __
+ *    PORT Number |    Pin Number
+ *        2        |        32
+ *        6        |        33
+ *        8        |        26
  *
  */
 
-#ifndef __EXONAUT_RGBLED_h
-#define __EXONAUT_RGBLED_h
+#ifndef EXONAUT_RGBLED_h
+#define EXONAUT_RGBLED_h
 
 #include "ExoNaut.h"
 #include <Adafruit_NeoPixel.h>
-
-#define RGB_LED_NUM_PIXELS 2 // Number of NeoPixels in the RGB module
 
 class RGB
 {
@@ -38,7 +36,8 @@ public:
 	void clear(void);
 
 private:
-	Adafruit_NeoPixel *pixels_rgb = NULL; // Pointer to our NeoPixel object
 };
+
+extern Adafruit_NeoPixel pixels2;
 
 #endif // end __EXONAUT_RGBLED_h
