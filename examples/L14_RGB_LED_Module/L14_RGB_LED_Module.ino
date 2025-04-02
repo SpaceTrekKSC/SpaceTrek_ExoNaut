@@ -1,83 +1,57 @@
-/**************************************************
- * L14_RGB_LED_Module.ino
- * An example program to demonstrate how to use the RGB LED module with the ExoNaut.
- * 
- * The RGB LEDs are Neo Pixels. The module has two LEDs and the port to pin mapping is:
- *	___________________________
- *	 PORT Number |	Pin Number
- *        2      |      32
- *        6      |      33
- *        8      |      26
- *
- * Author: Andrew Gafford
- * Email: agafford@spacetrek.com
- * Date: May 20th, 2024
- *
- * Commands:
- * RGB rgb;                                         // Create the RGB object
- * rgb.begin(port);                                 // Initialize the RGB module on specified port (2, 6, or 8)
- * rgb.setColor(pixel-num, red, green, blue);       // Set the color of one LED (call rgb.show() to display)
- * rgb.setColorAll(red, green, blue);               // Set all LEDs to same color and display immediately
- * rgb.show();                                      // Update LEDs with colors in memory
- * rgb.clear();                                     // Turn off all LEDs
- *
-**************************************************/
+/**
+ * Simple_RGB_Test.ino
+ * A basic test to directly control NeoPixels on pin 26
+ * without using the ExoNaut_RGB_LED library
+ */
 
-#include <ExoNaut.h>
-#include <ExoNaut_RGB_LED.h>
+#include <Adafruit_NeoPixel.h>
 
-exonaut robot;             // Create the main robot object
-RGB rgb;                   // Create the RGB LED object
+// Define the pin and number of pixels
+#define PIN 26
+#define NUM_PIXELS 2
+
+ Adafruit_NeoPixel pixels(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
 
 void setup() {
-  Serial.begin(115200);    // Initialize serial communication
-  Serial.println("RGB LED Test Starting");
+  Serial.begin(115200);
+  Serial.println("Simple RGB Test");
   
-  robot.begin();           // Initialize the robot
-  Serial.println("Robot initialized");
+  pixels.begin();
+  pixels.setBrightness(255);  // Max brightness
   
-  rgb.begin(8);            // Initialize the RGB module on port 8 (pin 26)
-  Serial.println("RGB LED initialized on port 8 (pin 26)");
+  // Turn all pixels off initially
+  pixels.clear();
+  pixels.show();
   
-  delay(1500);             // Wait 1.5 seconds
+  Serial.println("Initialized NeoPixels on pin 26");
 }
 
 void loop() {
-  // Example 1: Set all LEDs to different colors
-  rgb.setColorAll(150, 0, 0);    // Red
+  // Cycle through colors
+  Serial.println("Setting RED");
+  colorWipe(pixels.Color(255, 0, 0), 500); // Red
+  
+  Serial.println("Setting GREEN");
+  colorWipe(pixels.Color(0, 255, 0), 500); // Green
+  
+  Serial.println("Setting BLUE");
+  colorWipe(pixels.Color(0, 0, 255), 500); // Blue
+  
+  Serial.println("Setting WHITE");
+  colorWipe(pixels.Color(255, 255, 255), 500); // White
+  
+  Serial.println("All off");
+  pixels.clear();
+  pixels.show();
   delay(1000);
-  rgb.setColorAll(0, 150, 0);    // Green
-  delay(1000);
-  rgb.setColorAll(0, 0, 150);    // Blue
-  delay(1000);
-  rgb.clear();                   // Turn off
-  delay(1000);
+}
 
-  // Example 2: Set each LED individually, one at a time
-  for(int i = 0; i < 2; i++) {
-    rgb.setColor(i, 0, 0, 200);  // Blue
-    rgb.show();                  // Update display
-    delay(1000);
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t color, int wait) {
+  for(int i=0; i<pixels.numPixels(); i++) {
+    pixels.setPixelColor(i, color);
+    pixels.show();
+    delay(wait);
   }
-  delay(1000);
-  rgb.clear();
-  delay(1000);
-
-  // Example 3: Set different colors for each LED
-  rgb.setColor(0, 200, 0, 0);    // Set first LED to red
-  rgb.setColor(1, 0, 200, 0);    // Set second LED to green
-  rgb.show();                    // Update both at once
-  delay(2000);
-  rgb.clear();
-  delay(1000);
-
-  // Example 4: Set all LEDs to white
-  for(int i = 0; i < 2; i++) {
-    rgb.setColor(i, 200, 200, 200);  // White
-  }
-  rgb.show();
-  delay(2000);
-
-  rgb.clear();
-  delay(1000);
 }
