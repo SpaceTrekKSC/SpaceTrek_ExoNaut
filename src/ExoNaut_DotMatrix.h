@@ -2,20 +2,35 @@
  * ExoNaut_DotMatrix.h
  *
  * Author: Based on ExoNaut code by Andrew Gafford
- * Date: March 5th, 2025
+ * Date: March 28th, 2025
  *
  * This library provides control for TM1640-based LED dot matrix displays
  * for the Space Trek ExoNaut Robot.
+ *
+ * The Dot Matrix module will work on ports 6 and 8 of the ExoNout robot.
+ * The following table gives the port to pin mapping:
+ *  __________________________
+ *  PORT Number |   Pin Mapping
+ *      6       |   CLK: 25, DIN: 33
+ *      8       |   CLK: 27, DIN: 26
  */
 
-#ifndef __EXONAUT_DOTMATRIX_h
-#define __EXONAUT_DOTMATRIX_h
+#ifndef EXONAUT_DOTMATRIX_H
+#define EXONAUT_DOTMATRIX_H
 
 #include <Arduino.h>
+#include "ExoNaut.h"
 
-// Define TM1640 pins - you should adjust these to match your wiring
-#define TM1640_CLK_PIN 25 // Clock pin
-#define TM1640_DIN_PIN 33 // Data pin
+// Port specific pin mappings
+#define PORT_6_CLK_PIN 25
+#define PORT_6_DIN_PIN 33
+#define PORT_8_CLK_PIN 27
+#define PORT_8_DIN_PIN 26
+
+// Default ports
+#define DEFAULT_PORT 6
+#define DEFAULT_CLK_PIN PORT_6_CLK_PIN
+#define DEFAULT_DIN_PIN PORT_6_DIN_PIN
 
 // Dot matrix configuration
 #define TM1640_GRID_WIDTH 16 // 16 columns (2 x 8x8 matrices side by side)
@@ -31,14 +46,18 @@
 #define TM1640_BRIGHTNESS_MIN 0
 #define TM1640_BRIGHTNESS_MAX 7
 
-// Text scroll parameters
-#define SCROLL_SPEED_DEFAULT 30 // Default scroll delay in milliseconds
-#define CHAR_SPACING 1          // Number of empty pixels between characters
+// Scrolling text constants
+#define SCROLL_SPEED_DEFAULT 80 // Milliseconds between scroll updates (lower = faster)
 
 class ExoNaut_DotMatrix
 {
 public:
-    ExoNaut_DotMatrix(uint8_t clkPin = TM1640_CLK_PIN, uint8_t dinPin = TM1640_DIN_PIN);
+
+    // Constructor with port number
+    ExoNaut_DotMatrix(uint8_t port = DEFAULT_PORT);
+
+    // Alternatively initialize with specific pins
+    void setPins(uint8_t clkPin, uint8_t dinPin);
 
     void begin();
     void clear();
@@ -53,15 +72,18 @@ public:
     void displayNumber(uint8_t number);           // Display a number from 0-99
     void displayNumberWithEffect(uint8_t number); // Display with scroll effect
 
-    // Text display functions
+    // Text and scrolling functions
+    void drawChar(char character, int xOffset, int yOffset);
     void scrollText(const char *text, uint8_t numScrolls = 0, uint8_t scrollSpeed = SCROLL_SPEED_DEFAULT);
-    void stopScroll();   // Stop scrolling if in progress
-    bool isScrolling();  // Check if scrolling is active
-    void updateScroll(); // Update the scroll position - MOVED TO PUBLIC
+    void stopScroll();
+    bool isScrolling();
+    void updateScroll(); // Call this from loop() to update scrolling text
+
 
 private:
     uint8_t _clkPin;
     uint8_t _dinPin;
+    uint8_t _port;
     uint8_t _displayBuffer[16]; // Buffer for display data
 
     // Scrolling text variables
@@ -76,9 +98,8 @@ private:
 
     // Digit patterns for 5x7 font (0-9)
     static const uint8_t DIGITS[10][5];
-
-    // Character patterns for 5x7 font (A-Z, a-z, symbols)
-    static const uint8_t CHARS[96][5]; // ASCII 32-127
+    // Character patterns for ASCII 32-127
+    static const uint8_t CHARS[96][5];
 
     void sendCommand(uint8_t cmd);
     void startTransmission();
@@ -86,15 +107,12 @@ private:
     void sendData(uint8_t address, uint8_t data);
     void sendData(uint8_t data);
 
-    // Helper functions for display
+    // Helper functions
     void clearBuffer();
     void setPixel(int x, int y, bool state);
     void drawDigit(int digit, int xOffset, int yOffset);
-    void drawChar(char character, int xOffset, int yOffset);
-
-    // Scroll text helper functions
     int getCharWidth(char character);
     int calculateTextPixelWidth(const char *text);
 };
 
-#endif // __EXONAUT_DOTMATRIX_h
+#endif // EXONAUT_DOTMATRIX_H
