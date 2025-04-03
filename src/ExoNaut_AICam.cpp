@@ -286,7 +286,7 @@ bool ExoNaut_AICam::objDetected(uint8_t id, uint8_t index, WonderCamObjDetectRes
     }
     return false;
 }
-//
+
 int ExoNaut_AICam::classIdOfMaxProb()
 {
     if (current != APPLICATION_CLASSIFICATION)
@@ -295,7 +295,7 @@ int ExoNaut_AICam::classIdOfMaxProb()
     }
     return (int8_t)result_summ[1];
 }
-//
+
 float ExoNaut_AICam::classMaxProb()
 {
     uint16_t prob_u16;
@@ -306,7 +306,7 @@ float ExoNaut_AICam::classMaxProb()
     memcpy(&prob_u16, &result_summ[2], 2);
     return ((float)((int)(prob_u16))) / 10000.0;
 }
-//
+
 float ExoNaut_AICam::classProbOfId(uint8_t id)
 {
     uint16_t prob_u16;
@@ -425,10 +425,9 @@ bool ExoNaut_AICam::tagId(uint16_t id, int index, WonderCamAprilTagResult *p)
     return false;
 }
 
-// 是否扫描到QRCode
+// QRCode functions
 bool ExoNaut_AICam::qrCodeDetected(void)
 {
-
     if (current != APPLICATION_QRCODE)
     {
         return false;
@@ -436,7 +435,6 @@ bool ExoNaut_AICam::qrCodeDetected(void)
     return result_summ[1] > 0 ? true : false;
 }
 
-// QRCode的数据长度
 int ExoNaut_AICam::qrCodeDataLength(void)
 {
     WonderCamQrCodeResultSumm *p = (WonderCamQrCodeResultSumm *)result_summ;
@@ -447,7 +445,6 @@ int ExoNaut_AICam::qrCodeDataLength(void)
     return (int)p->len;
 }
 
-// 读取Qrcode的数据
 int ExoNaut_AICam::qrCodeData(uint8_t *buf)
 {
     int len, ret;
@@ -466,10 +463,9 @@ int ExoNaut_AICam::qrCodeData(uint8_t *buf)
     return ret;
 }
 
-// 是否扫描到barCode
+// Barcode functions
 bool ExoNaut_AICam::barCodeDetected(void)
 {
-
     if (current != APPLICATION_BARCODE)
     {
         return false;
@@ -477,7 +473,6 @@ bool ExoNaut_AICam::barCodeDetected(void)
     return result_summ[1] > 0 ? true : false;
 }
 
-// BarCode的数据长度
 int ExoNaut_AICam::barCodeDataLength(void)
 {
     WonderCamQrCodeResultSumm *p = (WonderCamQrCodeResultSumm *)result_summ;
@@ -488,7 +483,6 @@ int ExoNaut_AICam::barCodeDataLength(void)
     return (int)p->len;
 }
 
-// 读取Barcode的数据
 int ExoNaut_AICam::barCodeData(uint8_t *buf)
 {
     int len, ret;
@@ -867,4 +861,117 @@ bool ExoNaut_AICam::updateResult(void)
     }
     }
     return true;
+}
+
+/* -------------------------------
+   New AprilTag helper functions
+   ------------------------------- */
+
+// Print details of all detected tags to the Serial monitor
+bool ExoNaut_AICam::printAllTagDetails(void)
+{
+    if (current != APPLICATION_APRILTAG)
+    {
+        Serial.println("Error: Camera not in AprilTag mode");
+        return false;
+    }
+    uint8_t tagCount = result_summ[1];
+    Serial.print("Detected ");
+    Serial.print(tagCount);
+    Serial.println(" AprilTags:");
+    for (int i = 0; i < tagCount; i++)
+    {
+        WonderCamAprilTagResult tag;
+        // Each tag's detail is located at address: base + 0x30 + (0x32 * tag_index)
+        int addrOffset = 0x30 + 0x32 * i;
+        if (readFromAddr(0x1E00 + addrOffset, (uint8_t *)&tag, sizeof(tag)) != sizeof(tag))
+        {
+            Serial.println("Error reading tag data");
+            continue;
+        }
+        Serial.print("Tag ");
+        Serial.print(i);
+        Serial.print(": ID=");
+        Serial.print(result_summ[2 + i]);
+        Serial.print(", x=");
+        Serial.print(tag.x);
+        Serial.print(", y=");
+        Serial.print(tag.y);
+        Serial.print(", w=");
+        Serial.print(tag.w);
+        Serial.print(", h=");
+        Serial.print(tag.h);
+        Serial.print(", x_t=");
+        Serial.print(tag.x_t);
+        Serial.print(", x_r=");
+        Serial.print(tag.x_r);
+        Serial.print(", y_t=");
+        Serial.print(tag.y_t);
+        Serial.print(", y_r=");
+        Serial.print(tag.y_r);
+        Serial.print(", z_t=");
+        Serial.print(tag.z_t);
+        Serial.print(", z_r=");
+        Serial.println(tag.z_r);
+    }
+    return true;
+}
+
+// Get the details for a specific tag id and store them in the provided structure
+bool ExoNaut_AICam::getTagInfo(uint16_t tagId, WonderCamAprilTagResult *tag)
+{
+    if (current != APPLICATION_APRILTAG)
+    {
+        return false;
+    }
+    uint8_t tagCount = result_summ[1];
+    for (int i = 0; i < tagCount; i++)
+    {
+        // Tag IDs are stored starting at result_summ[2]
+        if (result_summ[2 + i] == tagId)
+        {
+            int addrOffset = 0x30 + 0x32 * i;
+            if (readFromAddr(0x1E00 + addrOffset, (uint8_t *)tag, sizeof(WonderCamAprilTagResult)) != sizeof(WonderCamAprilTagResult))
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+// Estimate the distance to a tag using its width; a simple pinhole camera model is assumed.
+// The focal length is an assumed constant (example value: 500.0) and realTagSize is in the same units as desired output.
+float ExoNaut_AICam::estimateTagDistance(WonderCamAprilTagResult *tag, float realTagSize)
+{
+    if (tag->w == 0)
+        return -1;
+    const float focalLength = 500.0; // Example focal length value; adjust as needed
+    return (realTagSize * focalLength) / tag->w;
+}
+
+// Retrieve the orientation of a tag. Here, we simply return the z-axis rotation value.
+float ExoNaut_AICam::getTagOrientation(WonderCamAprilTagResult *tag)
+{
+    return tag->z_r;
+}
+
+// List all detected tag IDs by printing them to the Serial monitor.
+void ExoNaut_AICam::listDetectedTagIds(void)
+{
+    if (current != APPLICATION_APRILTAG)
+    {
+        Serial.println("Error: Camera not in AprilTag mode");
+        return;
+    }
+    uint8_t tagCount = result_summ[1];
+    Serial.print("Detected Tag IDs: ");
+    for (int i = 0; i < tagCount; i++)
+    {
+        Serial.print(result_summ[2 + i]);
+        if (i < tagCount - 1)
+            Serial.print(", ");
+    }
+    Serial.println();
 }
