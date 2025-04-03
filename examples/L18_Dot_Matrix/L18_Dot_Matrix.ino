@@ -1,7 +1,8 @@
 /*
- * ExoNaut_DotMatrix_Demo.ino
+ * ExoNaut_DotMatrix.ino
  *
- * Author: For ExoNaut Robot
+ * Author: Andrew Gafford
+ * Email: agafford@spacetrek.com
  * Date: March 28th, 2025
  *
  * This sketch demonstrates the features of the ExoNaut_DotMatrix library,

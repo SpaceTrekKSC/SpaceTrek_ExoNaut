@@ -1,18 +1,21 @@
 /**************************************************
- * L20_RGB_LED_Module.ino
- 
- * An example program to demonstrate how to use the RGB LED module with the ExoNaut.
- * MAke sure to Attach the RGB LED module to port 6
- * The RGB LEDs are Neo Pixels. The module has two LEDs and the port to pin mapping is:
+ * L20_AvoidObstacle.ino
+ *
+ * Author: Andrew Gafford
+ * Email: agafford@spacetrek.com
+ * Date: March 5th, 2025
+ *
+ * An example program to demonstrate how to use the Avoid Obstacle module with the ExoNaut.
+ * Make sure to attach the RGB LED module to port 6 and the Avoid Obstacle module to port 8 (pin 26)
+ * You must use the pin number, not the port number, for the Avoid Obstacle module
+ *
+ * The port to pin mapping is:
  *	___________________________
  *	 PORT Number |	Pin Number
  *        2      |      32
  *        6      |      33
  *        8      |      26
  *
- * Author: Andrew Gafford
- * Email: agafford@spacetrek.com
- * Date: March 5th, 2025
  *
  * Commands:
  * RGB rgb;                                         // Create the RGB object
@@ -22,39 +25,36 @@
  * rgb.show();                                      // Update LEDs with colors in memory
  * rgb.clear();                                     // Turn off all LEDs
  *
+ * digitalRead(PIN_NUMBER);                         // digitalRead() is a native Arduino command.  It returns a HIGH/LOW (1/0) 
+ *                                                  // value based on the state of the pin it reads.
+ *
 **************************************************/
 #include <ExoNaut.h>
 #include <ExoNaut_RGB_LED.h>
 
-exonaut robot;
-RGB rgb;
+exonaut robot;                  //define an object for the robot
+RGB rgb;                        //define the object for the RGB LEDs module 
 
-#define IR 26 // Port 8 Accessing the Avoid Obstacle Module
+#define AO 26                   // define AO as 26 so that we can use AO instead of 26
 
-void setup()
-{
-Serial.begin(115200);
-robot.begin(); 
-rgb.begin(6); // Port Accessing the RGB Module
-pinMode(IR, INPUT); 
+void setup(){
+  robot.begin();                // Start the robot object 
+  rgb.begin(6);                 // Start the RGB LEDs on port 6
+  pinMode(AO, INPUT);           // Set the digital pin AO to an input
 
-delay(1500);
+  delay(1500);
 }
 
-void loop()
-{
-int IR_value = digitalRead(IR); // Take in reading from the IR Sensor
+void loop(){
+  int AO_value = digitalRead(AO);   // Take a reading from the AO Sensor
 
-// IR sensor is green if sensor isn't blocked
-if (IR_value == 1){ 
-  rgb.setColor(0, 0, 200, 0);
-  rgb.setColor(1, 0, 0, 0);
-}
-
-// IR sensor is red when object is detected
-else{
-  rgb.setColor(1, 200, 0, 0);
-  rgb.setColor(0, 0, 0, 0);
-}
-rgb.show();
+  if (AO_value == 1){               //the sensor is NOT close to an object
+    rgb.setColor(0, 0, 200, 0);     //turn pixel 0 green
+    rgb.setColor(1, 0, 0, 0);       //turn pixel 1 off
+  }
+  else{                             //the sensor IS close to an object
+    rgb.setColor(0, 0, 0, 0);       //turn pixel 0 off
+    rgb.setColor(1, 200, 0, 0);     //turn pixel 1 red
+  }
+  rgb.show();                       //update the RGB LEDs to show the new settings
 }
