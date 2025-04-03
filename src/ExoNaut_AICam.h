@@ -179,7 +179,13 @@ public:
     bool tagIdDetected(uint16_t id);
     int numOfTagIdDetected(uint16_t id);
     bool tagId(uint16_t id, int index, WonderCamAprilTagResult *p);
-
+    //
+    // New AprilTag helper functions
+    bool printAllTagDetails(void);
+    bool getTagInfo(uint16_t tagId, WonderCamAprilTagResult *tag);
+    float estimateTagDistance(WonderCamAprilTagResult *tag, float realTagSize = 16.0);
+    float getTagOrientation(WonderCamAprilTagResult *tag);
+    void listDetectedTagIds(void);
     //
     // qrcode result
     bool qrCodeDetected(void);
