@@ -1,6 +1,8 @@
 /*
  * L35_MP3_Playback.ino
  *
+ * WARNING - Work in progress, not fully functional yet
+ *
  * Example sketch for demonstrating the ExoNaut_MP3 library
  * with the Space Trek ExoNaut robot.
  * 
@@ -9,7 +11,7 @@
  * - Button B (PIN 2): Play/Pause
  * - LED indicators for playback status
  * 
- * For Hiwonder MP3 Module (I2C communication)
+ * For MP3 Module (I2C communication)
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
@@ -211,7 +213,7 @@ void loop() {
       Serial.println(currentTrack);
       
       // Play the new track
-      mp3.playTrack(currentTrack);
+      mp3.next();
       isPlaying = true;
       
       // Show visual track change
@@ -273,7 +275,7 @@ void loop() {
         Serial.println("Short press - Playing");
         if (mp3.getCurrentTrack() == 0) {
           // If no track is set, play track 1
-          mp3.playTrack(1);
+          mp3.playTrack(currentTrack);
         } else {
           // Otherwise resume current track
           mp3.play();
