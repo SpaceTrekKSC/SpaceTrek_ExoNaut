@@ -57,7 +57,7 @@
 exonaut robot;                // Main robot instance
 ExoNaut_Knob knob;            // Knob instance
 
-// Define which port the knob is connected to (1, 2, 6, or 8)
+// Define which port the knob is connected to port 2, 6, or 8
 #define KNOB_PORT 2          // Connected to port 2 (pin 32)
 
 // Control variables
