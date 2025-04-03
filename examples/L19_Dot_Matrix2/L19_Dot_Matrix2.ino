@@ -1,33 +1,18 @@
 /*
- * L19_DotMatrix.ino
+ * ExoNaut_DotMatrix.ino
  *
- * This example demonstrates how to use the ExoNaut Dot Matrix
- * to display numbers and animations
+ * Author: Andrew Gafford
+ * Email: agafford@spacetrek.com
+ * Date: March 28th, 2025
  *
- * Author: Ryan Bori
- * Email: ryan.bori@spacetrek.com
- * Date: March 30, 2025
-
-Commands:
-ExoNaut_DotMatrix dotMatrix;               //This command creates a DotMatrix object called 'dotMatrix'
-                                           //This is the object that handles all dot matrix display functions
-
-dotMatrix.begin();                          //This command initializes the display hardware and prepares it for use
-                                           //It is used once at the beginning of the program
-
-dotMatrix.setBrightness(brightness);        //This command adjusts the brightness level of the display
-                                           //Values range from 0 (darkest) to 7 (brightest)
-
-dotMatrix.clear();                          //This command turns off all LEDs and clears the display buffer
-
-dotMatrix.setAllOn();                       //This command turns on all LEDs in the display
-dotMatrix.setAllOff();                      //This command turns off all LEDs (same as clear)
-
-dotMatrix.displayNumber(number);            //This command shows a number (0-99) on the display
-
-dotMatrix.scrollText(text, numScrolls, speed); //This command scrolls text across the display
-                                              //Parameters: text to display, number of times to scroll, speed
-*/
+ * This sketch demonstrates the features of the ExoNaut_DotMatrix library,
+ * including displaying numbers and scrolling text.
+ *
+ * The previous Dot
+ * 
+ * The demo now supports the port selection system, allowing the dot matrix
+ * to be connected to either port 6 or port 8 of the ExoNaut robot.
+ */
 
 #include <Arduino.h>
 #include "ExoNaut.h"
@@ -35,19 +20,23 @@ dotMatrix.scrollText(text, numScrolls, speed); //This command scrolls text acros
 
 // Create instances
 exonaut robot;
-ExoNaut_DotMatrix dotMatrix;
+
+// Create dot matrix on port 6 (can be changed to port 8)
+uint8_t dotMatrixPort = 6; // Change to 8 if using port 8
+ExoNaut_DotMatrix dotMatrix(dotMatrixPort);
 
 void setup() {
-  // Initialize serial communication
-  Serial.begin(115200);
-  Serial.println("ExoNaut Dot Matrix Large Number Display Example");
+  Serial.begin(115200);                               // Initialize serial communication
+  Serial.println("ExoNaut Dot Matrix Demo");
+  Serial.print("Using port: ");
+  Serial.println(dotMatrixPort);
   
-  // Initialize the ExoNaut robot
-  robot.begin();
+  robot.begin();                                      // Initialize the ExoNaut robot object
   
-  // Initialize the TM1640 dot matrix
-  dotMatrix.begin();
-  dotMatrix.setBrightness(TM1640_BRIGHTNESS_MAX);
+  
+  dotMatrix.begin();                                  // Initialize the TM1640 dot matrix
+  dotMatrix.setBrightness(0);                         //use values from 0 to 7, with 0 being the minimum and 7 being the maximum
+  
   // Set robot's onboard LEDs
   robot.setColorAll(0, 255, 0);  // Green
   robot.show();
@@ -57,22 +46,36 @@ void setup() {
   delay(500);
   dotMatrix.clear();
   delay(500);
+  
+  // Display welcome message showing which port is being used
+  String welcomeMsg = "DOT MATRIX ON PORT " + String(dotMatrixPort);
+  dotMatrix.scrollText(welcomeMsg.c_str(), 1, 70);
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
+  delay(500);
 }
 
 void loop() {
-  // Example 1: Simple counting with regular display
-  Serial.println("Example 1: Counting 0-99");
-  for (int i = 0; i <= 99; i++) {
+  // PART 1: Number Display Demo
+  Serial.println("Number Display Demo");
+  
+  // Count up from 0 to 20
+  for (int i = 0; i <= 20; i++) {
     dotMatrix.displayNumber(i);
-    delay(300);  // Slow enough to see each number
+    delay(300);
   }
   delay(1000);
   
-  // Example 2: Countdown from 10 with large numbers
-  Serial.println("Example 2: Countdown");
+  // Countdown with effect
+  Serial.println("Countdown Demo");
   for (int i = 10; i >= 0; i--) {
-    dotMatrix.displayNumber(i);
-    delay(1000);  // One second for countdown effect
+    dotMatrix.displayNumberWithEffect(i);
+    delay(1000);
   }
   
   // Flash 00 a few times
@@ -83,5 +86,112 @@ void loop() {
     delay(250);
   }
   
-  delay(2000);  // Pause before repeating
+  // PART 2: Text Scrolling Demo
+  Serial.println("Text Scrolling Demo");
+  
+  // Start scrolling text (3 complete scrolls)
+  dotMatrix.scrollText("HELLO EXONAUT WORLD!", 3);
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);  // Small delay to prevent excessive CPU usage
+  }
+  
+  // Pause before next demo
+  delay(1000);
+  
+  // Scroll text with faster speed (1 scroll)
+  String portMsg = "PORT " + String(dotMatrixPort) + " ACTIVE";
+  dotMatrix.scrollText(portMsg.c_str(), 1, 50);  // 50ms update speed (faster)
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
+  // Pause before next demo
+  delay(1000);
+  
+  // Countdown timer (minutes:seconds)
+  int seconds = 20;  // 20 seconds countdown
+  
+  Serial.println("Countdown Timer Demo");
+  while (seconds > 0) {
+    int mins = seconds / 60;
+    int secs = seconds % 60;
+    
+    // Display as MM:SS
+    String timeStr = "";
+    
+    // Add leading zero for minutes if needed
+    if (mins < 10) {
+      timeStr += "0";
+    }
+    timeStr += String(mins);
+    timeStr += ":";
+    
+    // Add leading zero for seconds if needed
+    if (secs < 10) {
+      timeStr += "0";
+    }
+    timeStr += String(secs);
+    
+    // Scroll once
+    dotMatrix.scrollText(timeStr.c_str(), 1, 60);
+    
+    // Keep updating until complete
+    while (dotMatrix.isScrolling()) {
+      dotMatrix.updateScroll();
+      delay(10);
+    }
+    
+    // Decrement the seconds
+    seconds--;
+    
+    // Flash robot LEDs as timer approaches 0
+    if (seconds <= 10) {
+      robot.setColorAll(255, 0, 0);  // Red for final countdown
+    } else if (seconds <= 30) {
+      robot.setColorAll(255, 255, 0);  // Yellow for warning
+    }
+    robot.show();
+  }
+  
+  // Timer complete
+  dotMatrix.scrollText("TIME'S UP!", 2, 70);
+  
+  // Flash robot LEDs rapidly
+  for (int i = 0; i < 10; i++) {
+    robot.setColorAll(255, 0, 0);  // Red
+    robot.show();
+    delay(200);
+    robot.setColorAll(0, 0, 0);    // Off
+    robot.show();
+    delay(200);
+  }
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
+  // Display which port is being used
+  String portReminder = "USING PORT " + String(dotMatrixPort);
+  dotMatrix.scrollText(portReminder.c_str(), 1, 70);
+  
+  // Keep updating the scroll until it's complete
+  while (dotMatrix.isScrolling()) {
+    dotMatrix.updateScroll();
+    delay(10);
+  }
+  
+  // Reset LEDs to green
+  robot.setColorAll(0, 255, 0);  // Green
+  robot.show();
+  
+  // Pause before restarting the demo
+  delay(2000);
 }

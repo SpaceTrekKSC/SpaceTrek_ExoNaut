@@ -1,5 +1,5 @@
 /*
- * L29_MP3_Playback.ino
+ * L35_MP3_Playback.ino
  *
  * Example sketch for demonstrating the ExoNaut_MP3 library
  * with the Space Trek ExoNaut robot.
@@ -62,7 +62,7 @@
 
 #include <ExoNaut.h>
 #include <Wire.h>
-#include "ExoNaut_MP3.h"
+#include <ExoNaut_MP3.h>
 
 // Create objects
 exonaut robot;

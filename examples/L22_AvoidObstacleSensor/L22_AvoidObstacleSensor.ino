@@ -1,5 +1,5 @@
 /**************************************************
- * L20_AvoidObstacle.ino
+ * L22_AvoidObstacleSensor.ino
  *
  * Author: Andrew Gafford
  * Email: agafford@spacetrek.com
