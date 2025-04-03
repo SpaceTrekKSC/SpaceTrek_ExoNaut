@@ -1,5 +1,5 @@
 /*
- * L19_DotMatrix.ino
+ * L20_DotMatrix.ino
  *
  * This example demonstrates how to use the ExoNaut Dot Matrix
  * to display numbers and animations
@@ -47,7 +47,7 @@ void setup() {
   
   // Initialize the TM1640 dot matrix
   dotMatrix.begin();
-  dotMatrix.setBrightness(TM1640_BRIGHTNESS_MAX);
+  dotMatrix.setBrightness(7);                         //use values from 0 to 7, with 0 being the minimum and 7 being the maximum
   // Set robot's onboard LEDs
   robot.setColorAll(0, 255, 0);  // Green
   robot.show();

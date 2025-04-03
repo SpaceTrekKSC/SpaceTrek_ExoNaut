@@ -21,6 +21,8 @@
  * 
  * robot.begin();                                   //This command initializes or begins the things in the robot object.
  *                                                  //It is used once at the beginning of the program.
+ *
+ * robot.beginBusServo();                           //start the bus servo
  * 
  * robot.bus_servo_set_pose(ID, Position, Time);    //sets a servo position.  The ID is on the side of the servos
  *                                                  //the position can be between 0 and 1000 with 500 being in the middle

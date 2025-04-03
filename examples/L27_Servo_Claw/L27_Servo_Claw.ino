@@ -1,5 +1,5 @@
 /*
- * L30_Servo_Claw.ino
+ * L27_Servo_Claw.ino
  *
  * This example demonstrates how to control a robotic claw
  * attached to the ExoNaut robot using bus servos.

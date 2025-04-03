@@ -1,5 +1,5 @@
 /*
- * ExoNaut_DotMatrix.ino
+ * L19_Dot_Matrix2.ino
  *
  * Author: Andrew Gafford
  * Email: agafford@spacetrek.com
@@ -7,16 +7,14 @@
  *
  * This sketch demonstrates the features of the ExoNaut_DotMatrix library,
  * including displaying numbers and scrolling text.
- *
- * The previous Dot
  * 
  * The demo now supports the port selection system, allowing the dot matrix
  * to be connected to either port 6 or port 8 of the ExoNaut robot.
  */
 
 #include <Arduino.h>
-#include "ExoNaut.h"
-#include "ExoNaut_DotMatrix.h"
+#include <ExoNaut.h>
+#include <ExoNaut_DotMatrix.h>
 
 // Create instances
 exonaut robot;
