@@ -52,6 +52,7 @@
 class ExoNaut_DotMatrix
 {
 public:
+
     // Constructor with port number
     ExoNaut_DotMatrix(uint8_t port = DEFAULT_PORT);
 
@@ -77,6 +78,7 @@ public:
     void stopScroll();
     bool isScrolling();
     void updateScroll(); // Call this from loop() to update scrolling text
+
 
 private:
     uint8_t _clkPin;
