@@ -2,7 +2,7 @@
 #include <ExoNaut.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
-#include <ESPAsyncWebSrv.h>
+#include <ESPAsyncWebServer.h>
 #include <iostream>
 #include <sstream>
 
@@ -101,8 +101,8 @@ const char* htmlHomePage PROGMEM = R"HTMLHOMEPAGE(
   </head>
   <body class="noselect" align="center" style="background-color:white">
      
-    <h1 style="color: teal;text-align:center;">Hash Include Electronics</h1>
-    <h2 style="color: teal;text-align:center;">WiFi Tank Control</h2>
+    <h1 style="color: teal;text-align:center;">Space Trek</h1>
+    <h2 style="color: teal;text-align:center;">ExoNaut Robotics</h2>
     
     <table id="mainTable" style="width:400px;margin:auto;table-layout:fixed" CELLSPACING=10>
       <tr>

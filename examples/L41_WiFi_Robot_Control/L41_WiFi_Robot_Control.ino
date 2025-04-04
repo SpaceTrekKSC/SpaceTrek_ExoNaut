@@ -2,7 +2,7 @@
 #include <ExoNaut.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
-#include <ESPAsyncWebSrv.h>
+#include <ESPAsyncWebServer.h>
 #include <iostream>
 #include <sstream>
 
@@ -11,12 +11,6 @@
 #define LEFT 3
 #define RIGHT 4
 #define STOP 0
-
-// #define RIGHT_MOTOR 0
-// #define LEFT_MOTOR 1
-
-// #define FORWARD 1
-// #define BACKWARD -1
 
 const char* ssid     = "ExoNaut";
 const char* password = "123456789";
@@ -101,13 +95,13 @@ const char* htmlHomePage PROGMEM = R"HTMLHOMEPAGE(
   </head>
   <body class="noselect" align="center" style="background-color:white">
      
-    <h1 style="color: teal;text-align:center;">Hash Include Electronics</h1>
-    <h2 style="color: teal;text-align:center;">WiFi Tank Control</h2>
+    <h1 style="color: teal;text-align:center;">Space Trek</h1>
+    <h2 style="color: teal;text-align:center;">ExoNaut Robotics</h2>
     
     <table id="mainTable" style="width:400px;margin:auto;table-layout:fixed" CELLSPACING=10>
       <tr>
         <td></td>
-        <td class="button" onmousedown='sendButtonInput("MoveCar","1")' onmouseup='sendButtonInput("MoveCar","0")'><span class="arrows" >&#8679;</span></td>
+        <td class="button" ontouchstart='sendButtonInput("MoveCar","1")' ontouchend='sendButtonInput("MoveCar","0")'><span class="arrows" >&#8679;</span></td>
         <td></td>
       </tr>
       <tr>
