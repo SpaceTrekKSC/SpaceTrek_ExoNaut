@@ -2,6 +2,9 @@
  * L66_AI_Image_Classification.ino
  * A program to identify objects using AI camera and indicate confidence with LED colors
  *
+ * The camera module is an i2c device.  It must be plugged
+ * into port 3, 4, 5 or 9.  It will not work in any other ports.
+ *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: April 2, 2025

@@ -5,6 +5,9 @@
  * detection to control robot movement. The program detects specific
  * colors and responds with appropriate movement commands.
  *
+ * The camera module is an i2c device.  It must be plugged
+ * into port 3, 4, 5 or 9.  It will not work in any other ports.
+ *
  * Color ID 1: Robot moves forward
  * Color ID 2: Robot stops
  * No colors detected: Robot stops

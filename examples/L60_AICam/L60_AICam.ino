@@ -6,6 +6,9 @@
  * to explore different camera vision modes, motor control, and LED settings
  * with full feedback through the serial monitor.
  *
+ * The camera module is an i2c device.  It must be plugged
+ * into port 3, 4, 5 or 9.  It will not work in any other ports.
+ *
  * Features:
  * - Multiple vision modes: face detection, object detection, color detection, etc.
  * - Motor control with speed adjustment

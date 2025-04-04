@@ -2,6 +2,9 @@
  * L63_AI_Mat_Test.ino
  * A program to navigate through 3 stations with different sensing modes
  *
+ * The camera module is an i2c device.  It must be plugged
+ * into port 3, 4, 5 or 9.  It will not work in any other ports.
+ *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 30, 2025

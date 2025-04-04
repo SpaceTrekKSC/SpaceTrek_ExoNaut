@@ -8,6 +8,9 @@
  * movement to follow the line, including strategies for handling
  * lost lines and recovering the path.
  *
+ * The camera module is an i2c device.  It must be plugged
+ * into port 3, 4, 5 or 9.  It will not work in any other ports.
+ *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 31, 2025

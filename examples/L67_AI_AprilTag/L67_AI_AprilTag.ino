@@ -2,6 +2,9 @@
  * L67_AI_AprilTag.ino
  * A program to detect and analyze AprilTags using AI camera
  *
+ * The camera module is an i2c device.  It must be plugged
+ * into port 3, 4, 5 or 9.  It will not work in any other ports.
+ *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: April 2, 2025
