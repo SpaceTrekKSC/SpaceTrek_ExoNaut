@@ -58,8 +58,8 @@
 #include "ExoNaut.h"
 
 // WiFi credentials
-const char* ssid = "[Enter Wifi Name]";
-const char* password = "[Enter Wifi Password]";
+const char* ssid = "WiFi-SSID";
+const char* password = "Password";
 
 // Web server on port 80
 WebServer server(80);
