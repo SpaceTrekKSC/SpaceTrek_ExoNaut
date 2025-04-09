@@ -1,5 +1,5 @@
 /*
- * L06_AccelGyro_Monitor.ino
+ * L21_AccelGyro.ino
  *
  * This example creates an interactive serial monitor interface
  * to display and control the ExoNaut's MPU6050 accelerometer
@@ -7,6 +7,8 @@
  * 
  * The program displays accelerometer, gyroscope, and orientation
  * data and allows calibration through a simple menu system.
+ *
+ * Must be plugged into port 9, 5, 4, 3
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
