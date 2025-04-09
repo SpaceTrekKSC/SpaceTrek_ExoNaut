@@ -5,6 +5,11 @@
  * instead of PWM which might not be compatible with all ESP32 versions.
  * 
  * Connect the fan to port 6 of the CoreX controller 
+ *  If connected to Port 6
+ *  M- is on PIN 33
+ *  M+ is on PIN 25
+ *
+ *  If connected to Port 8
  *  M- is on PIN 33
  *  M+ is on PIN 25
  *
