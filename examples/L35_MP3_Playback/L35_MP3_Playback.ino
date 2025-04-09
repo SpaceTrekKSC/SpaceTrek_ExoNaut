@@ -10,12 +10,13 @@
  * - Button A (PIN 0): Next Track
  * - Button B (PIN 2): Play/Pause
  * - LED indicators for playback status
- * 
- * For MP3 Module (I2C communication)
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 3, 2025
+ *
+ * For MP3 Module (I2C communication)
+ * Must be plugged into port 9, 5, 4, 3
  *
  * Commands:
  * exonaut robot;                        //This command creates the main robot instance
