@@ -2,11 +2,14 @@
  * L20_DotMatrix.ino
  *
  * This example demonstrates how to use the ExoNaut Dot Matrix
- * to display numbers and animations
+ * to display numbers
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 30, 2025
+ *
+ * The demo now supports the port selection system, allowing the dot matrix
+ * to be connected to either port 6 or port 8 of the ExoNaut robot.
 
 Commands:
 ExoNaut_DotMatrix dotMatrix;               //This command creates a DotMatrix object called 'dotMatrix'
@@ -35,7 +38,7 @@ dotMatrix.scrollText(text, numScrolls, speed); //This command scrolls text acros
 
 // Create instances
 exonaut robot;
-ExoNaut_DotMatrix dotMatrix;
+ExoNaut_DotMatrix dotMatrix(8);
 
 void setup() {
   // Initialize serial communication
