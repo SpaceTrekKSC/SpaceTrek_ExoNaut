@@ -1,7 +1,10 @@
 /**
  * Simple_RGB_Test.ino
- * A basic test to directly control NeoPixels on pin 26
- * without using the ExoNaut_RGB_LED library
+ * A basic test to directly control NeoPixels
+ * 
+ * The RGB LED module will only work if it is plugged into port 6 or port 8.
+ * If it is plugged into port 6 the data pin is 33
+ * If it is plugged into port 8 the data pin is 26
  */
 
 #include <Adafruit_NeoPixel.h>
