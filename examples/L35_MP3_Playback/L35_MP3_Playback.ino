@@ -1,66 +1,28 @@
 /*
  * L35_MP3_Playback.ino
  *
- * WARNING - Work in progress, not fully functional yet
+ * Demonstrates basic MP3 playback functionality using the ExoNaut_MP3 library.
+ * Intended for use with the Space Trek ExoNaut robot and MP3 module via I2C.
  *
- * Example sketch for demonstrating the ExoNaut_MP3 library
- * with the Space Trek ExoNaut robot.
- * 
- * This sketch provides basic MP3 playback functionality using:
- * - Button A (PIN 0): Next Track
- * - Button B (PIN 2): Play/Pause
- * - LED indicators for playback status
+ * Controls:
+ * - Serial commands to control playback:
+ *     p = play
+ *     a = pause
+ *     n = next track
+ *     b = previous track
+ *     u = volume up
+ *     d = volume down
+ *     x = max volume
+ *     m = mute
+ *     0–9 = set volume percentage (0% to 90%)
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 3, 2025
  *
- * For MP3 Module (I2C communication)
- * Must be plugged into port 9, 5, 4, 3
- *
- * Commands:
- * exonaut robot;                        //This command creates the main robot instance
- *                                       //This is the object that handles motors and core functions
- *
- * ExoNaut_MP3 mp3;                      //This command creates an MP3 player object called 'mp3'
- *                                       //This is the object that handles audio playback control
- *
- * mp3.begin();                          //This command initializes the MP3 module and sets up I2C communication
- *                                       //Also detects the total number of tracks available
- *
- * mp3.setVolume(volume);                //This command sets the playback volume (0-30)
- *                                       //0 = mute, 30 = maximum volume
- *
- * mp3.getTotalTracks();                 //This command returns the total number of tracks detected on the module
- *
- * mp3.playTrack(trackNumber);           //This command plays a specific track by number
- *                                       //Tracks are numbered starting from 1
- *
- * mp3.play();                           //This command starts or resumes playback of the current track
- *
- * mp3.pause();                          //This command pauses the current playback
- *
- * mp3.next();                           //This command skips to the next track
- *
- * mp3.previous();                       //This command returns to the previous track
- *
- * mp3.getVolume();                      //This command returns the current volume setting
- *
- * mp3.volumeUp();                       //This command increases the volume by one step
- *
- * mp3.volumeDown();                     //This command decreases the volume by one step
- *
- * mp3.getCurrentTrack();                //This command returns the current track number
- *
- * robot.setColor(index, r, g, b);       //This command sets the color of an individual LED
- *                                       //Parameters: LED index, red, green, blue values (0-255)
- *
- * robot.setColorAll(r, g, b);           //This command sets all LEDs to the same color
- *                                       //Parameters: red, green, blue values (0-255)
- *
- * robot.clear();                        //This command turns off all LEDs
- *
- * robot.show();                         //This command updates the physical LED display
+ * Notes:
+ * - MP3 module must be plugged into ports 9, 5, 4, or 3.
+ * - Requires ExoNaut_MP3 library.
  */
 
  #include <Wire.h>
