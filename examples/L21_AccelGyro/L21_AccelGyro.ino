@@ -1,204 +1,94 @@
 /*
- * L21_AccelGyro.ino
+ * L21_IMU.ino
  *
  * This example creates an interactive serial monitor interface
  * to display and control the ExoNaut's MPU6050 accelerometer
- * and gyroscope sensor.
+ * and gyroscope sensor using the ExoNautIMU class.
  * 
  * The program displays accelerometer, gyroscope, and orientation
- * data and allows calibration through a simple menu system.
+ * data, and allows gyroscope calibration and mode switching via
+ * the serial monitor.
  *
- * Must be plugged into port 9, 5, 4, 3
+ * Must be plugged into ports 9, 5, 4, 3
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 30, 2025
  *
  * Commands:
- * ExoNautAccelGyro robot;                     //This command creates an AccelGyro object called 'robot'
- *                                            //This is the object that handles the MPU6050 sensor
+ * ExoNautIMU imu;                              //Creates an IMU object called 'imu'
+ *                                            //Handles reading and processing sensor data
  *
- * robot.beginIMU();                           //This command initializes the MPU6050 sensor
- *                                            //Returns true if successful, false if initialization failed
+ * imu.start();                                 //Initializes the MPU6050 sensor
+ *                                            //Returns true if successful, false otherwise
  *
- * robot.calibrateIMU();                       //This command performs gyroscope calibration
- *                                            //The robot should remain still during calibration
+ * imu.calibrate();                             //Calibrates the gyroscope
+ *                                            //Robot must remain still during this process
  *
- * robot.updateIMU();                          //This command reads the latest sensor data
- *                                            //Should be called regularly in the loop
+ * imu.update();                                //Reads new data from the IMU
+ *                                            //Should be called frequently in loop()
  *
- * robot.getAcceleration(&ax, &ay, &az);       //This command retrieves the current acceleration values
- *                                            //Parameters are pointers to float variables for x, y, z axes
+ * imu.getAcceleration();                       //imu.getAccelX(), getAccelY(), getAccelZ()
+ *                                            //Returns acceleration in g for each axis
  *
- * robot.getRotation(&gx, &gy, &gz);           //This command retrieves the current rotation rate values
- *                                            //Parameters are pointers to float variables for x, y, z axes
+ * imu.getRotation();                           //imu.getGyroX(), getGyroY(), getGyroZ()
+ *                                            //Returns angular velocity in deg/sec
  *
- * robot.getOrientation(&pitch, &roll, &yaw);  //This command retrieves the current orientation angles
- *                                            //Parameters are pointers to float variables for pitch, roll, yaw
+ * imu.getOrientation();                        //imu.getPitch(), getRoll(), getYaw()
+ *                                            //Returns current orientation in degrees
+ *
+ * Serial commands:
+ *   'c' - Calibrate the gyroscope
+ *   'm' - Switch mode (0: Orientation, 1: Accel, 2: Gyro)
  */
 
-#include "ExoNaut.h"
-#include "ExoNaut_AccelGyro.h"
-
-ExoNautAccelGyro robot;
-unsigned long lastPrintTime = 0;
-const unsigned long printInterval = 200;
-
-// State machine variables
-enum DisplayMode {
-  MENU,           // Show menu
-  ACCEL_GYRO,     // Show accelerometer and gyroscope readings
-  ORIENTATION     // Show orientation readings
-};
-
-DisplayMode currentMode = MENU;
-
-void setup() {
-  Serial.begin(115200);
-  Serial.println("ExoNaut MPU6050 Interactive Monitor");
-  
-  // Initialize robot
-  robot.begin();
-  
-  // Initialize IMU
-  if (robot.beginIMU()) {
-    Serial.println("MPU6050 initialized successfully");
-  } else {
-    Serial.println("Failed to initialize MPU6050");
-    while (1); // Halt if initialization failed
-  }
-  
-  // Calibrate the gyroscope
-  Serial.println("Calibrating gyroscope... keep the robot still!");
-  robot.calibrateIMU();
-  Serial.println("Calibration complete!");
-  
-  showMenu();
-}
-
-void loop() {
-  // Update IMU data regardless of mode
-  robot.updateIMU();
-  
-  // Check for commands
-  if (Serial.available() > 0) {
-    char command = Serial.read();
-    processCommand(command);
-    
-    // Clear any remaining characters
-    while (Serial.available() > 0) {
-      Serial.read();
-    }
-  }
-  
-  // Handle continuous display modes
-  unsigned long currentTime = millis();
-  if (currentTime - lastPrintTime >= printInterval) {
-    lastPrintTime = currentTime;
-    
-    switch (currentMode) {
-      case ACCEL_GYRO:
-        displayAccelGyro();
-        break;
-        
-      case ORIENTATION:
-        displayOrientation();
-        break;
-        
-      case MENU:
-        // Nothing to display continuously in menu mode
-        break;
-    }
-  }
-  
-  // Small delay to prevent CPU hogging
-  delay(10);
-}
-
-void showMenu() {
-  Serial.println("\n===== ExoNaut MPU6050 Monitor =====");
-  Serial.println("  g - Continuous accelerometer & gyroscope readings");
-  Serial.println("  o - Continuous orientation readings");
-  Serial.println("  c - Calibrate gyroscope");
-  Serial.println("  x - Return to this menu (when in continuous mode)");
-  Serial.println("=====================================");
-}
-
-void processCommand(char cmd) {
-  switch (cmd) {
-    case 'g':
-      currentMode = ACCEL_GYRO;
-      Serial.println("\nStarting continuous accelerometer & gyroscope readings...");
-      Serial.println("(Press 'x' to return to menu)");
-      break;
-      
-    case 'o':
-      currentMode = ORIENTATION;
-      Serial.println("\nStarting continuous orientation readings...");
-      Serial.println("(Press 'x' to return to menu)");
-      break;
-      
-    case 'c':
-      Serial.println("\nCalibrating gyroscope... keep the robot still!");
-      robot.calibrateIMU();
-      Serial.println("Calibration complete!");
-      break;
-      
-    case 'x':
-      if (currentMode != MENU) {
-        currentMode = MENU;
-        showMenu();
-      }
-      break;
-      
-    case '\n':
-    case '\r':
-      // Ignore newline characters
-      break;
-      
-    default:
-      if (currentMode == MENU) {
-        Serial.println("Unknown command. Please select a valid option.");
-      }
-      break;
-  }
-}
-
-void displayAccelGyro() {
-  // Get accelerometer values
-  float ax, ay, az;
-  robot.getAcceleration(&ax, &ay, &az);
-  
-  // Get gyroscope values
-  float gx, gy, gz;
-  robot.getRotation(&gx, &gy, &gz);
-  
-  // Print values in a clean format
-  Serial.print("Accel(g): ");
-  Serial.print(ax, 2); Serial.print(", ");
-  Serial.print(ay, 2); Serial.print(", ");
-  Serial.print(az, 2);
-  
-  Serial.print(" | Gyro(deg/s): ");
-  Serial.print(gx, 2); Serial.print(", ");
-  Serial.print(gy, 2); Serial.print(", ");
-  Serial.print(gz, 2);
-  
-  Serial.println();
-}
-
-void displayOrientation() {
-  // Get orientation values
-  float pitch, roll, yaw;
-  robot.getOrientation(&pitch, &roll, &yaw);
-  
-  // Print orientation in a clean format
-  Serial.print("Orientation(deg): Pitch=");
-  Serial.print(pitch, 2);
-  Serial.print(", Roll=");
-  Serial.print(roll, 2);
-  Serial.print(", Yaw=");
-  Serial.print(yaw, 2);
-  
-  Serial.println();
-}
+ #include <Wire.h>
+ #include "ExoNaut_IMU.h"
+ 
+ ExoNautIMU imu;
+ int mode = 0;
+ 
+ void setup() {
+   Serial.begin(115200);
+   if (imu.start()) {
+     Serial.println("IMU started successfully!");
+     Serial.println("Send 'c' to calibrate, 'm' to switch mode (0: orientation, 1: accel, 2: gyro)");
+   } else {
+     Serial.println("Failed to start IMU.");
+   }
+ }
+ 
+ void loop() {
+   if (Serial.available()) {
+     char command = Serial.read();
+     if (command == 'c') {
+       Serial.println("Calibrating gyroscope, keep the board still...");
+       imu.calibrate();
+       Serial.println("Calibration complete!");
+     } else if (command == 'm') {
+       mode = (mode + 1) % 3;
+       Serial.print("Switched to mode: ");
+       Serial.println(mode);
+     }
+   }
+ 
+   imu.update();
+ 
+   if (mode == 0) {
+     Serial.print("Pitch: "); Serial.print(imu.getPitch());
+     Serial.print(" Roll: "); Serial.print(imu.getRoll());
+     Serial.print(" Yaw: "); Serial.println(imu.getYaw());
+   } else if (mode == 1) {
+     Serial.print("Accel X: "); Serial.print(imu.getAccelX());
+     Serial.print(" Y: "); Serial.print(imu.getAccelY());
+     Serial.print(" Z: "); Serial.println(imu.getAccelZ());
+   } else if (mode == 2) {
+     Serial.print("Gyro X: "); Serial.print(imu.getGyroX());
+     Serial.print(" Y: "); Serial.print(imu.getGyroY());
+     Serial.print(" Z: "); Serial.println(imu.getGyroZ());
+   }
+ 
+   delay(500);
+ }
+ 
+ 
