@@ -36,3 +36,27 @@
  * lineFollower.simpleFollowLine();      //This command automatically handles line following
  *                                       //It follows the line, slows down for sharp turns, and pivots if the line is lost
  */
+#include "ExoNaut.h"
+#include "ExoNaut_AICam.h"
+#include "ExoNaut_AICamLF.h"
+
+exonaut robot;
+ExoNaut_AICam camera;
+ExoNaut_AICamLF lineFollower;
+
+void setup() {
+  Serial.begin(115200);
+  robot.begin();
+  delay(500);
+
+  if (!lineFollower.begin(&robot, &camera)) {
+    Serial.println("Camera not connected!");
+    while (1);
+  }
+
+  lineFollower.setBaseSpeed(40); // Set speed once
+}
+
+void loop() {
+  lineFollower.simpleFollowLine(); // Robot drives itself!
+}
