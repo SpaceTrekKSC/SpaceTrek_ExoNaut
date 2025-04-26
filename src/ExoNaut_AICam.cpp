@@ -975,3 +975,35 @@ void ExoNaut_AICam::listDetectedTagIds(void)
     }
     Serial.println();
 }
+
+bool ExoNaut_AICam::tagFound()
+{
+    updateResult();
+    return numOfTotalTagDetected() > 0;
+}
+
+void ExoNaut_AICam::printTagInfo()
+{
+    updateResult();
+    int numTags = numOfTotalTagDetected();
+    if (numTags == 0)
+    {
+        Serial.println("No AprilTags found.");
+        return;
+    }
+    Serial.print("Found ");
+    Serial.print(numTags);
+    Serial.println(" AprilTag(s):");
+    for (int i = 0; i < numTags; i++)
+    {
+        uint16_t tagId = result_summ[2 + i];
+        Serial.print("- Tag ID: ");
+        Serial.println(tagId);
+    }
+}
+
+int ExoNaut_AICam::howManyTags()
+{
+    updateResult();
+    return numOfTotalTagDetected();
+}

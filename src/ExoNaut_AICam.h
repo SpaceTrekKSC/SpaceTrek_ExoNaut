@@ -156,7 +156,7 @@ public:
     float classMaxProb();
     float classProbOfId(uint8_t id);
     //
-    // Featuren Learning
+    // Feature Learning
     int featureIdOfMaxProb();
     float featureMaxProb();
     float featureProbOfId(uint8_t id);
@@ -179,6 +179,10 @@ public:
     bool tagIdDetected(uint16_t id);
     int numOfTagIdDetected(uint16_t id);
     bool tagId(uint16_t id, int index, WonderCamAprilTagResult *p);
+    bool tagFound();
+    void printTagInfo();
+    int howManyTags();
+
     //
     // New AprilTag helper functions
     bool printAllTagDetails(void);
