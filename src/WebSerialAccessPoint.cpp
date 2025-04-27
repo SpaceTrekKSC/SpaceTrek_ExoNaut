@@ -140,12 +140,52 @@ void WebSerialAccessPointClass::begin(const char *ssid, const char *password)
 
 void WebSerialAccessPointClass::print(const String &message)
 {
-    ws.textAll(message);
+    ws.textAll(String(message));
+}
+
+void WebSerialAccessPointClass::print(int number)
+{
+    print(String(number));
+}
+
+void WebSerialAccessPointClass::print(float number)
+{
+    print(String(number));
+}
+
+void WebSerialAccessPointClass::print(double number)
+{
+    print(String(number));
+}
+
+void WebSerialAccessPointClass::print(unsigned int number)
+{
+    print(String(number));
 }
 
 void WebSerialAccessPointClass::println(const String &message)
 {
-    ws.textAll(message);
+    ws.textAll(String(message));
+}
+
+void WebSerialAccessPointClass::println(int number)
+{
+    println(String(number));
+}
+
+void WebSerialAccessPointClass::println(float number)
+{
+    println(String(number));
+}
+
+void WebSerialAccessPointClass::println(double number)
+{
+    println(String(number));
+}
+
+void WebSerialAccessPointClass::println(unsigned int number)
+{
+    println(String(number));
 }
 
 void WebSerialAccessPointClass::setReadyToRun(bool state)
