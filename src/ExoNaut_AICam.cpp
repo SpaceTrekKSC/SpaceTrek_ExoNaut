@@ -178,6 +178,7 @@ bool ExoNaut_AICam::getFaceOfId(uint8_t id, WonderCamFaceDetectResult *p)
             uint16_t index = i - 4;
             index = 0x30 + index * 16;
             readFromAddr(0x0400 + index, (uint8_t *)p, 16);
+
             return true;
         }
     }
@@ -976,34 +977,53 @@ void ExoNaut_AICam::listDetectedTagIds(void)
     Serial.println();
 }
 
-bool ExoNaut_AICam::tagFound()
+void ExoNaut_AICam::printFaceTable()
 {
-    updateResult();
-    return numOfTotalTagDetected() > 0;
-}
-
-void ExoNaut_AICam::printTagInfo()
-{
-    updateResult();
-    int numTags = numOfTotalTagDetected();
-    if (numTags == 0)
+    if (current != APPLICATION_FACEDETECT)
     {
-        Serial.println("No AprilTags found.");
+        Serial.println("Error: Camera is not in Face Detection mode.");
         return;
     }
-    Serial.print("Found ");
-    Serial.print(numTags);
-    Serial.println(" AprilTag(s):");
-    for (int i = 0; i < numTags; i++)
-    {
-        uint16_t tagId = result_summ[2 + i];
-        Serial.print("- Tag ID: ");
-        Serial.println(tagId);
-    }
-}
 
-int ExoNaut_AICam::howManyTags()
-{
-    updateResult();
-    return numOfTotalTagDetected();
+    updateResult(); // Always refresh data first
+
+    int totalFaces = numOfTotalFaceDetected();
+    if (totalFaces == 0)
+    {
+        Serial.println("No faces detected.");
+        return;
+    }
+
+    Serial.println("----------------------------------------------");
+    Serial.printf("| %-10s | %5s | %5s | %5s | %5s |\n", "Face ID", "X", "Y", "W", "H");
+    Serial.println("----------------------------------------------");
+
+    // Print learned faces
+    for (uint8_t id = 1; id <= 29; id++)
+    {
+        if (faceOfIdDetected(id))
+        {
+            WonderCamFaceDetectResult face;
+            if (getFaceOfId(id, &face))
+            {
+                Serial.printf("| %-10d | %5d | %5d | %5d | %5d |\n",
+                              id, face.x, face.y, face.w, face.h);
+            }
+        }
+    }
+
+    // Print unlearned faces
+    uint8_t unlearnedIndex = 1;
+    int unlearnedFaces = numOfTotalUnlearnedFaceDetected();
+    for (int i = 0; i < unlearnedFaces; i++)
+    {
+        WonderCamFaceDetectResult face;
+        if (getFaceOfIndex(unlearnedIndex++, &face))
+        {
+            Serial.printf("| %-10s | %5d | %5d | %5d | %5d |\n",
+                          "Unknown", face.x, face.y, face.w, face.h);
+        }
+    }
+
+    Serial.println("----------------------------------------------");
 }

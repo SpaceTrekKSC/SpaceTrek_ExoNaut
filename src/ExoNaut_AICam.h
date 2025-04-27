@@ -143,6 +143,9 @@ public:
     bool faceOfIdDetected(uint8_t id);
     bool getFaceOfId(uint8_t id, WonderCamFaceDetectResult *p);
     bool getFaceOfIndex(uint8_t index, WonderCamFaceDetectResult *p);
+    void printFaceTable(void);
+    uint8_t readFaceHeightLowByte(uint8_t faceIndex);
+
     //
     // obj detect
     bool anyObjDetected();
@@ -156,7 +159,7 @@ public:
     float classMaxProb();
     float classProbOfId(uint8_t id);
     //
-    // Feature Learning
+    // Featuren Learning
     int featureIdOfMaxProb();
     float featureMaxProb();
     float featureProbOfId(uint8_t id);
@@ -179,10 +182,6 @@ public:
     bool tagIdDetected(uint16_t id);
     int numOfTagIdDetected(uint16_t id);
     bool tagId(uint16_t id, int index, WonderCamAprilTagResult *p);
-    bool tagFound();
-    void printTagInfo();
-    int howManyTags();
-
     //
     // New AprilTag helper functions
     bool printAllTagDetails(void);
