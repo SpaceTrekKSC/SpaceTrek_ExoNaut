@@ -1,83 +1,111 @@
 /***************************************************
- * L16_7Segment_Display.ino
- * An example program to show how to use the four digit seven segment display
+ * L16_7SegmentDisplay.ino
+ * A fun example to show how to use the ExoNaut 7-segment display!
  *
- * Author:	Andrew Gafford
- * Email:		agafford@spacetrek.com
- * Date:		May 20th, 2024
+ * Author:    Ryan Bori
+ * Email:     ryan.bori@spacetrek.com
+ * Date:      May 22nd, 2025
  *
- * The seven segment display will only work if it is plugged into port 6 or port 8.
- * If it is plugged into port 6 the data pin is 33 and the clock pin is 25
- * If it is plugged into port 8 the data pin is 26 and the clock pin is 27
+ * Plug the display into Port 6 or Port 8 on your robot.
+ * Use 6 if you're not sure. Just change the number in the code if needed!
  *
  *
- * Commands:
- * TM1640 display(data pin, clock pin, number of digits);       //This command sets up the TM1640 display object. TM1640 is the class and display is the object
- *  
- * display.setDisplayToString("text");                          //this command will output text to the display.  There are 
- *                                                              //limitations to what can be displayed with a seven segment
- *                                                              //display. So some characters don't look right. 
+ * Commands List:
+ * ExoNaut_7Segment display(port);                    // This sets up the display. Use port 6 or 8.
  *
- * display.clearDisplay();                                      //this command clears the display
+ * display.begin();                                   // Start the display so it works!
  *
- * display.clearDisplayDigit(digit);                            //this command clears a single digit on the display
- *                                                              //the digits are numbered from 0 to 3 left to right
+ * display.showText("TEXT");                          // Show 4 letters or numbers on the screen
  *
- * display.setDisplayDigit(number, digit);                      //this command will put a single number at a specific digit
- *                                                              //digits are numbered 0 to 3 left to right
+ * display.clear();                                   // Clear the whole screen
  *
- * display.setDisplayToDecNumber(number, _BV(digit));           //this command will put an integer number on the display and 
- *                                                              //turn on the decimal point at the digit specified in _BV()
- *                                                              //it is important to note that for _BV digits are numbered 1 to 4
- *                                                              //from right to left.  This is opposite of the above two commands
+ * display.showNumber(number);                        // Show any number up to 9999
  *
-***************************************************/
+ * display.showDigit(number, position);               // Show 1 number at a spot (0 = left, 3 = right)
+ *
+ * display.countUp(start, end, delay);                // Count up from one number to another
+ *
+ * display.countDown(start, end, delay);              // Count down from one number to another
+ *
+ * display.blink(number, times, delay);               // Blink a number on and off
+ *
+ * display.scroll("HELLO WORLD", speed);              // Scroll a long message across the screen
+ *
+ * display.showDecimal(number, place);                // Show a number with a decimal point (like 31.42)
+ *
+ ***************************************************/
 
+#include <ExoNaut.h>              // Include the main ExoNaut library
+#include "ExoNaut_7Segment.h"     // Include our simple 7-segment library
 
-#include <ExoNaut.h>                    //Include the ExoNaut library
-#include <TM1640.h>                     //Include the TM1640 display driver library
+// Create a 7-segment display object
+// Change the number to 8 if you plugged it into port 8
+ExoNaut_7Segment display(6);      // Using port 6
 
-//PORT 6
-#define DISP_DATA_PIN     33            //use these for PORT 6
-#define DISP_CLK_PIN      25
-
-//PORT8 8
-// #define DISP_DATA_PIN     26           //use these for PORT 8
-// #define DISP_CLK_PIN      27
-
-//The display has four digits
-#define DISP_NUM_DIGITS   4             //the display has four digits
-
-TM1640 display(DISP_DATA_PIN, DISP_CLK_PIN, DISP_NUM_DIGITS);     //setup the TM1640 display object.  TM1640 is the class display is the name given to the object
-
-void setup() {                                        //setup runs once at the beginning of the program
-  display.setDisplayToString("HALO");                 //output a string to the display
-  delay(2000);                                        //wait 2 seconds
-
-  display.clearDisplay();                             //clears the display
-  delay(1000);                                        //wait 1 second
+void setup() {
+  // Start the display
+  display.begin();
   
-  int number = 1234;                                  //a variable who's value will be displayed
-
-  display.setDisplayToDecNumber(number, _BV(0));      //displays an integer number and do not include the decimal
-  delay(2000);                                        //wait 2 seconds
-
-  display.setDisplayToDecNumber(number, _BV(1));      //displays an integer number but activates the decimal at location 1
-  delay(1000);                                        //wait 1 second
-  display.setDisplayToDecNumber(number, _BV(2));      //displays an integer number but activates the decimal at location 2
-  delay(1000);                                      
-  display.setDisplayToDecNumber(number, _BV(3));      //displays an integer number but activates the decimal at location 3
+  // Show a welcome message
+  display.showText("HELO");       // "HELLO" but only 4 characters fit
+  delay(2000);                    // Wait 2 seconds
+  
+  // Clear the display
+  display.clear();
+  delay(500);
+  
+  // Show some numbers
+  display.showNumber(1234);       // Show the number 1234
+  delay(2000);
+  
+  display.showNumber(42);         // Show the number 42
+  delay(2000);
+  
+  // Count up from 0 to 10 (fun animation!)
+  display.countUp(0, 10, 300);    // Count from 0 to 10, wait 300ms between numbers
   delay(1000);
-  display.setDisplayToDecNumber(number, _BV(4));      //displays an integer number but activates the decimal at location 4
+  
+  // Count down from 10 to 0
+  display.countDown(10, 0, 200);  // Count from 10 to 0, wait 200ms between numbers
+  delay(1000);
+  
+  // Blink the number 88
+  display.blink(88, 5, 400);      // Blink 88 five times, wait 400ms between blinks
+  delay(1000);
+  
+  // Show text with scrolling
+  display.scroll("HELLO WORLD", 250);  // Scroll "HELLO WORLD" across display
   delay(2000);
-
-  display.clearDisplayDigit(2);                       //clears digit 2.  The digits are numbered 0 to 3 left to right
+  
+  // Show a number with a decimal point
+  display.showDecimal(3142, 2);   // Show 31.42 (decimal at position 2)
+  delay(3000);
+  
+  // One more fun thing - show individual digits
+  display.clear();
+  display.showDigit(1, 0);        // Show "1" at position 0 (leftmost)
+  delay(500);
+  display.showDigit(2, 1);        // Show "2" at position 1
+  delay(500);
+  display.showDigit(3, 2);        // Show "3" at position 2
+  delay(500);
+  display.showDigit(4, 3);        // Show "4" at position 3 (rightmost)
   delay(2000);
-
-  display.setDisplayDigit(9, 2);                      //sets digit 2 to 9
-  delay(2000);
+  
+  // Show "COOL" to finish
+  display.showText("COOL");
 }
 
 void loop() {
-  // nothing in loop()
+  // Let's make a simple clock-like counter
+  static int counter = 0;
+  
+  display.showNumber(counter);    // Show the current counter value
+  counter++;                      // Add 1 to the counter
+  
+  if (counter > 9999) {           // If we go past 9999, start over at 0
+    counter = 0;
+  }
+  
+  delay(1000);                    // Wait 1 second before counting again
 }
