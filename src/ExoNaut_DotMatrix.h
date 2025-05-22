@@ -19,7 +19,6 @@
 #define EXONAUT_DOTMATRIX_H
 
 #include <Arduino.h>
-#include "ExoNaut.h"
 
 // Port specific pin mappings
 #define PORT_6_CLK_PIN 25
