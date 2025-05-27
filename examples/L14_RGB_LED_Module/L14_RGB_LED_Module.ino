@@ -1,12 +1,37 @@
-/**
- * Simple_External_RGB_Test_Integrated.ino
- * A basic test to directly control an external NeoPixel RGB LED module
- * using the integrated RGB class from the ExoNaut library.
+/***************************************************
+ * L14_RGB_LED_Module.ino
+ * A fun example to show how to control an external RGB LED strip
+ * using the ExoNaut RGB class!
  *
- * The RGB LED module comments from original:
- * - Port 6: data pin 33
- * - Port 8: data pin 26
- */
+ * Author:    Ryan Bori
+ * Email:     ryan.bori@spacetrek.com
+ * Date:      May 27th, 2025
+ *
+ * Plug the RGB LED strip into Port 6 or Port 8 on your robot.
+ * - Use Port 6 if you're not sure. It uses pin 33.
+ * - Port 8 uses pin 26.
+ * Just change the PIN_EXTERNAL define in the code if needed!
+ *
+ *
+ * Commands List:
+ * RGB pixels(numPixels, pin, rmtChannel, pixelType);          // Sets up an RGB object for your LED strip
+ *
+ * pixels.begin();                                             // Start the strip so it's ready to go
+ *
+ * pixels.setBrightness(brightness);                           // Set brightness from 0 to 255
+ *
+ * pixels.setColor(index, color);                              // Set a specific LED to a specific color
+ *
+ * pixels.show();                                              // Push the color changes to the LED strip
+ *
+ * pixels.clear();                                             // Turn all LEDs off
+ *
+ * pixels.numPixels();                                         // Get how many LEDs are in the strip
+ *
+ * ExoNautPixelController::Color(r, g, b);                      // Make a color using red, green, and blue values
+ *
+ ***************************************************/
+
 
 #include <ExoNaut_RGB_LED.h> // Use your library's RGB LED header
                              // This should include ExoNaut.h, which includes ExoNautPixel.h

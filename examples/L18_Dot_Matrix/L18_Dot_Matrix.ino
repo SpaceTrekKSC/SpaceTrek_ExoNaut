@@ -6,20 +6,25 @@
  * Email:		agafford@spacetrek.com
  * Date:		May 20th, 2024
  *
- * The dot matrix display will only work if it is plugged into port 6 or port 8.
- * If it is plugged into port 6 the data pin is 33 and the clock pin is 25
- * If it is plugged into port 8 the data pin is 26 and the clock pin is 27
+ * Plug the dot matrix display into Port 6 or Port 8 on your robot.
+ * - Port 6 uses data pin 33 and clock pin 25.
+ * - Port 8 uses data pin 26 and clock pin 27.
+ * Use Port 6 if you're not sure. Just change the pin definitions in the code!
  *
+ * Commands List:
+ * TM1640 module(dataPin, clockPin);                          // Set up the TM1640 display driver
  *
+ * TM16xxMatrix matrix(&module, columns, rows);               // Set up the matrix controller
  *
+ * module.clearDisplay();                                     // Clear the display (turn off all dots)
  *
+ * matrix.setAll(true/false);                                 // Turn all pixels on or off
  *
+ * matrix.setPixel(x, y, true/false);                         // Turn one pixel on or off at (x, y)
  *
+ * matrix.setColumn(index, byte);                             // Set all 8 bits in a column using a byte
  *
- *
- *
- *
-**********************************************************/
+ ***************************************************/
 #include <TM1640.h>                     //include the TM1640 display driver library
 #include <TM16xxMatrix.h>               //include the TM16xx dot matrix library
 
