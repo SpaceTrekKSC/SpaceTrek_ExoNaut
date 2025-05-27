@@ -22,7 +22,7 @@ exonaut robot;                                  //define the robot object
 
 void setup(){                                   //the setup() function runs a single time
   robot.begin();                                //start the robot object
-  Serial.begin(9600);                           //start the Serial communication with the robot at 9600 baud
+  Serial.begin(115200);                           //start the Serial communication with the robot at 9600 baud
   delay(1500);                                  //wait 1.5 seconds
 }
 
