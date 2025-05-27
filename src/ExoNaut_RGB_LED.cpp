@@ -1,68 +1,46 @@
-/*
- *ExoNaut_RGB_LED.h
- *
- *Author:    Andrew Gafford
- *Email:        agafford@spacetrek.com
- *Date:        May 20th, 2024
- *
- *This library is for controlling the Space Trek ExoNaut Robot's RGB Ultrasonic
- *distance sensor.  It provides functions to read the distance and set the RGB LEDS.
- *
- */
-
 #include "ExoNaut_RGB_LED.h"
-#include <Adafruit_NeoPixel.h>
 
-Adafruit_NeoPixel pixels2(2, 36, NEO_GRB + NEO_KHZ800);
-
-void RGB::begin(uint8_t port)
+// Constructor definition for RGB class
+RGB::RGB(uint8_t num_leds, int8_t pin, rmt_channel_t rmt_ch, neoPixelType type) : _pixels_member(num_leds, pin, type, rmt_ch)
 {
-	int8_t pin_number;
-	switch (port)
-	{
-	case 2:
-		pin_number = 32;
-		break;
-	case 6:
-		pin_number = 33;
-		break;
-	case 8:
-		pin_number = 26;
-		break;
-	default:
-		pin_number = -1;
-		break;
-	}
-	pixels2.setPin(pin_number);
-	pixels2.begin();
-	for (int i = 0; i < 2; i++)
-	{
-		pixels2.setPixelColor(i, pixels2.Color(0, 0, 0));
-	}
-	pixels2.show();
+	// The _pixels_member is initialized using the member initializer list
+}
+
+void RGB::begin()
+{
+	_pixels_member.begin();
+}
+
+void RGB::setBrightness(uint8_t b)
+{
+	_pixels_member.setBrightness(b);
 }
 
 void RGB::setColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b)
 {
-	pixels2.setPixelColor(n, pixels2.Color(r, g, b));
+	_pixels_member.setPixelColor(n, r, g, b);
 }
 
-void RGB::setColorAll(uint8_t r, uint8_t g, uint8_t b)
+// Implementation for the new setColor overload
+void RGB::setColor(uint16_t n, uint32_t c)
 {
-	for (int i = 0; i < 2; i++)
-	{
-		pixels2.setPixelColor(i, pixels2.Color(r, g, b));
-	}
-	pixels2.show();
+	// Delegate to the ExoNautPixelController's overload that handles packed uint32_t color
+	_pixels_member.setPixelColor(n, c);
 }
 
-void RGB::show(void)
+void RGB::show()
 {
-	pixels2.show();
+	_pixels_member.show();
 }
 
-void RGB::clear(void)
+void RGB::clear()
 {
-	pixels2.clear();
-	pixels2.show();
+	_pixels_member.clear();
+	// Note: show() is not automatically called by this clear() method.
+	// Call show() explicitly in your sketch if you want to update the LEDs immediately after clearing.
+}
+
+uint16_t RGB::numPixels()
+{
+	return _pixels_member.numPixels();
 }
