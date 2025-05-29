@@ -5,6 +5,7 @@
  * Author:    Ryan Bori
  * Email:     ryan.bori@spacetrek.com
  * Date:      May 22nd, 2025
+ * Updated:   Self-contained library version (no external dependencies!)
  *
  * Plug the display into Port 6 or Port 8 on your robot.
  * Use 6 if you're not sure. Just change the number in the code if needed!
@@ -38,11 +39,16 @@
 #include <ExoNaut.h>              // Include the main ExoNaut library
 #include "ExoNaut_7Segment.h"     // Include our simple 7-segment library
 
-// Create a 7-segment display object
-// Change the number to 8 if you plugged it into port 8
-ExoNaut_7Segment display(6);      // Using port 6
+// Create the robot and display objects
+exonaut robot;                    // Main robot object (needed for I2C initialization)
+ExoNaut_7Segment display(6);      // Create a 7-segment display object on port 6
+                                  // Change the number to 8 if you plugged it into port 8
 
 void setup() {
+  // Initialize the robot first (this sets up I2C communication)
+  robot.begin();
+  delay(500);                     // Give the robot time to start up
+  
   // Start the display
   display.begin();
   
