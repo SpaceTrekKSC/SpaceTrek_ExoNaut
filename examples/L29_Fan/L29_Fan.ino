@@ -10,8 +10,8 @@
  *  M+ is on PIN 25
  *
  *  If connected to Port 8
- *  M- is on PIN 33
- *  M+ is on PIN 25
+ *  M- is on PIN 26
+ *  M+ is on PIN 27
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
