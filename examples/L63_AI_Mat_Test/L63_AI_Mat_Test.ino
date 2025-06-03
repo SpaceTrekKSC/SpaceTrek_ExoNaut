@@ -1,261 +1,179 @@
 /**************************************************
- * L63_AI_Mat_Test.ino
- * A program to navigate through 3 stations with different sensing modes
+ * L63_AI_Mat.ino
+ * A simplified program to navigate through 3 stations with different sensing modes
  *
- * The camera module is an i2c device.  It must be plugged
- * into port 3, 4, 5 or 9.  It will not work in any other ports.
+ * The camera module is an i2c device. It must be plugged
+ * into port 3, 4, 5 or 9. It will not work in any other ports.
  *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
- * Date: March 30, 2025
+ * Date: May 29, 2025
  * 
- * Station 1: Color detection (wait for color ID 1)
+ * Program Flow:
+ * Station 1: Color detection (wait for color ID 1, then move forward)
  * Station 2: Landmark recognition (ID 1 = right turn, ID 2 = left turn)
  * Station 3: Take another right or left based on Station 2 decision
  * 
  * Commands:
- * exonaut robot;                        //This command creates the main robot instance
- *                                       //This is the object that handles motors and core functions
+ * exonaut robot;                        //Creates the main robot instance
+ *                                       //Handles motors and core functions
  *
- * lineFollower lf;                      //This command creates a line follower object
- *                                       //Used to read the state of the line following sensors
+ * lineFollower lf;                      //Creates a line follower object
+ *                                       //Used to read the state of line following sensors
  *
- * ExoNaut_AICam camera;                 //This command creates an AI Camera object
+ * ExoNaut_AICam camera;                 //Creates an AI Camera object
  *                                       //Handles vision-based detection and recognition
  *
- * robot.begin();                        //This command initializes the robot systems
+ * robot.begin();                        //Initializes the robot systems
  *
- * camera.begin();                       //This command initializes the camera module
+ * camera.begin();                       //Initializes the camera module
  *
- * robot.stop_motor(motorID);            //This command stops the specified motors
- *                                       //0 = both motors, 1 = left motor, 2 = right motor
+ * camera.changeFunc(mode);              //Changes the camera's operating mode
+ *                                       //Modes: APPLICATION_COLORDETECT, APPLICATION_LANDMARK
  *
- * camera.changeFunc(mode);              //This command changes the camera's operating mode
- *                                       //Different modes include: APPLICATION_LINEFOLLOW, 
- *                                       //APPLICATION_COLORDETECT, APPLICATION_LANDMARK
+ * lf.readLineFollower(lineData);        //Reads the line follower sensors
+ *                                       //Updates lineData with sensor values
  *
- * lf.readLineFollower(lineData);        //This command reads the line follower sensors
- *                                       //Updates the lineData variable with sensor values
+ * camera.updateResult();                //Updates recognition results from the camera
  *
- * camera.updateResult();                //This command updates recognition results from the camera
+ * camera.colorIdDetected(id);           //Checks if a specific color ID is detected
  *
- * camera.colorIdDetected(id);           //This command checks if a specific color ID is detected
+ * camera.landmarkIdDetected(id);        //Checks if a specific landmark ID is detected
  *
- * camera.landmarkIdDetected(id);        //This command checks if a specific landmark ID is detected
- *
- * robot.set_motor_speed(left, right);   //This command sets the motor speeds
- *                                       //Parameters are for left and right motors (-100 to 100)
+ * robot.set_motor_speed(left, right);   //Sets the motor speeds (-100 to 100)
  **************************************************/
 
-#include <ExoNaut.h>                          // Include the ExoNaut library
-#include <ExoNaut_LineFollower.h>             // Include the ExoNaut Line Follower library
-#include <ExoNaut_AICam.h>                    // Include the ExoNaut AI Camera library
+#include <ExoNaut.h>
+#include <ExoNaut_LineFollower.h>
+#include <ExoNaut_AICam.h>
 
 // Create objects
-exonaut robot;                                // Robot control object
-lineFollower lf;                              // Line follower object
-ExoNaut_AICam camera;                         // AI Camera object
+exonaut robot;
+lineFollower lf;
+ExoNaut_AICam camera;
 
-// Variables
-uint8_t lineData = 0;                         // Variable to store line sensor data
-int currentStation = 0;                       // Current station (0 = between stations, 1-3 = at station)
-bool stationDetected = false;                 // Flag to detect station entry
-unsigned long stationEntryTime = 0;           // Time when entering a station
-int directionTaken = 0;                       // Direction taken at station 2 (1 = right, 2 = left)
-int currentMode = 0;                          // Current mode (0 = line following, 1 = at station)
+// Simple state tracking
+uint8_t lineData = 0;
+int station = 0;           // 0=line following, 1=station1, 2=station2, 3=station3
+int savedDirection = 0;    // 1=right, 2=left (from station 2)
 
 void setup() {
-  Serial.begin(115200);                       // Initialize serial communication for debugging
-  robot.begin();                              // Initialize robot
-  camera.begin();                             // Initialize AI camera
-  robot.stop_motor(0);                        // Stop both motors initially
+  Serial.begin(115200);
   
-  // Set initial mode to line following
+  // Initialize everything
+  robot.begin();
+  camera.begin();
   camera.changeFunc(APPLICATION_LINEFOLLOW);
-  currentMode = 0;
   
-  delay(1000);                                // Wait 1 second before starting
-  Serial.println("Robot navigation started");
+  Serial.println("Starting navigation...");
 }
 
 void loop() {
-  // Update line follower data
   lf.readLineFollower(lineData);
   
-  // Detect station entry (all sensors detect white)
-  if (lineData == 0b0000 && !stationDetected) {
-    stationDetected = true;
-    stationEntryTime = millis();
-    currentStation = (currentStation % 3) + 1;  // Cycle through stations 1-3
-    currentMode = 1;  // Switch to station mode
-    robot.stop_motor(0);
+  // Check for station (all sensors see white)
+  if (lineData == 0b0000 && station == 0) {
+    station = (station % 3) + 1;  // Go to next station (1, 2, or 3)
+    robot.set_motor_speed(0, 0);  // Stop
     
-    Serial.print("Entered Station ");
-    Serial.println(currentStation);
+    Serial.print("At Station ");
+    Serial.println(station);
     
-    // Configure camera for appropriate detection mode at this station
-    handleStationEntry();
-  }
-  
-  // At a station - handle according to current station
-  if (currentMode == 1) {
-    handleStationLogic();
-  }
-  // Between stations - follow the line
-  else {
-    // Reset station detection when line is detected again after station
-    if (stationDetected && lineData != 0b0000) {
-      stationDetected = false;
+    // Set up camera for this station
+    if (station == 1) {
+      camera.changeFunc(APPLICATION_COLORDETECT);
+    } else if (station == 2) {
+      camera.changeFunc(APPLICATION_LANDMARK);
     }
     
-    // Line following logic
+  } else if (station > 0) {
+    // At a station - handle detection
+    handleStation();
+    
+  } else {
+    // Following line - simple line following
     followLine();
   }
   
-  delay(10);  // Small delay for stability
+  delay(50);
 }
 
-void handleStationEntry() {
-  switch(currentStation) {
-    case 1:
-      // At station 1, switch to color detection mode
-      camera.changeFunc(APPLICATION_COLORDETECT);
-      Serial.println("Switched to color detection mode");
-      break;
-      
-    case 2:
-      // At station 2, switch to landmark recognition mode
-      camera.changeFunc(APPLICATION_LANDMARK);
-      Serial.println("Switched to landmark recognition mode");
-      break;
-      
-    case 3:
-      // At station 3, no special sensing needed, just make the same turn as station 2
-      Serial.println("At station 3, will make turn based on station 2 decision");
-      break;
-  }
-}
-
-void handleStationLogic() {
-  // Update camera results
+void handleStation() {
   camera.updateResult();
   
-  switch(currentStation) {
-    case 1:
-      // Station 1: Wait for color ID 1
-      if (camera.colorIdDetected(1)) {
-        Serial.println("Color ID 1 detected, moving forward");
-        robot.set_motor_speed(40, 40);  // Move forward
-        delay(1000);  // Move for 1 second
-        
-        // Return to line following mode
-        camera.changeFunc(APPLICATION_LINEFOLLOW);
-        currentMode = 0;
-      }
-      break;
+  if (station == 1) {
+    // Station 1: Wait for red color
+    if (camera.colorIdDetected(1)) {
+      Serial.println("Red detected! Moving forward");
+      robot.set_motor_speed(40, 40);
+      delay(1000);
       
-    case 2:
-      while(lineData == 0b0000){
-        lf.readLineFollower(lineData);
-        robot.set_motor_speed(10, 10);
-
-      }
-      robot.stop_motor(0);
-      // Station 2: Check for landmarks and decide direction
-      if (camera.landmarkIdDetected(1)) {
-        Serial.println("Landmark ID 1 detected, turning right");
-        robot.set_motor_speed(40, 5);  // Turn right
-        directionTaken = 1;  // Remember we turned right
-        delay(1000);  // Turn for 1 second
-        
-        // Return to line following mode
-        camera.changeFunc(APPLICATION_LINEFOLLOW);
-        currentMode = 0;
-      }
-      else if (camera.landmarkIdDetected(2)) {
-        Serial.println("Landmark ID 2 detected, turning left");
-        robot.set_motor_speed(5, 40);  // Turn left
-        directionTaken = 2;  // Remember we turned left
-        delay(1000);  // Turn for 1 second
-        
-        // Return to line following mode
-        camera.changeFunc(APPLICATION_LINEFOLLOW);
-        currentMode = 0;
-      }
-      break;
-      
-    case 3:
-      // Station 3: Make the same turn as in station 2
-      if (directionTaken == 1) {
-        Serial.println("At station 3, turning right again");
-        robot.set_motor_speed(40, 5);  // Turn right
-        delay(1000);  // Turn for 1 second
-      }
-      else if (directionTaken == 2) {
-        Serial.println("At station 3, turning left again");
-        robot.set_motor_speed(5, 40);  // Turn left
-        delay(1000);  // Turn for 1 second
-      }
-      
-      // Return to line following mode
+      // Back to line following
       camera.changeFunc(APPLICATION_LINEFOLLOW);
-      currentMode = 0;
-      break;
+      station = 0;
+    }
+    
+  } else if (station == 2) {
+    // Station 2: Check landmarks
+    if (camera.landmarkIdDetected(1)) {
+      Serial.println("Landmark 1: Turning right");
+      robot.set_motor_speed(40, -20);
+      delay(800);
+      savedDirection = 1;  // Remember right turn
+      
+      camera.changeFunc(APPLICATION_LINEFOLLOW);
+      station = 0;
+      
+    } else if (camera.landmarkIdDetected(2)) {
+      Serial.println("Landmark 2: Turning left");
+      robot.set_motor_speed(-20, 40);
+      delay(800);
+      savedDirection = 2;  // Remember left turn
+      
+      camera.changeFunc(APPLICATION_LINEFOLLOW);
+      station = 0;
+    }
+    
+  } else if (station == 3) {
+    // Station 3: Repeat the saved direction
+    if (savedDirection == 1) {
+      Serial.println("Station 3: Turning right again");
+      robot.set_motor_speed(40, -20);
+      delay(800);
+    } else if (savedDirection == 2) {
+      Serial.println("Station 3: Turning left again");
+      robot.set_motor_speed(-20, 40);
+      delay(800);
+    }
+    
+    camera.changeFunc(APPLICATION_LINEFOLLOW);
+    station = 0;
   }
 }
 
 void followLine() {
+  // Simple line following logic
   switch(lineData) {
-    case 0b0000:                              // All detect white
-      // This is handled in the main loop as station detection
+    case 0b0001:  // Far right sensor
+      robot.set_motor_speed(40, -10);
       break;
-    case 0b0001:                              // Only sensor 1 detects black
-      robot.set_motor_speed(40, -10);         // Turn right
+    case 0b0010:  // Right sensor
+      robot.set_motor_speed(40, 10);
       break;
-    case 0b0010:                              // Only sensor 2 detects black
-      robot.set_motor_speed(40, 6);
+    case 0b0100:  // Left sensor  
+      robot.set_motor_speed(10, 40);
       break;
-    case 0b0011:                              // Sensor 1 and 2 detect black
-      robot.set_motor_speed(40, -5);
+    case 0b1000:  // Far left sensor
+      robot.set_motor_speed(-10, 40);
       break;
-    case 0b0100:                              // Only sensor 3 detects black
-      robot.set_motor_speed(6, 40);
+    case 0b0110:  // Center sensors - go straight
+      robot.set_motor_speed(40, 40);
       break;
-    case 0b0110:                              // Sensor 2 and 3 detect black
-      robot.set_motor_speed(40, 40);          // Go straight
+    case 0b1111:  // All sensors - intersection
+      robot.set_motor_speed(30, 30);
       break;
-    case 0b0111:                              // Sensor 1, 2 and 3 detect black
-      robot.set_motor_speed(40, 0);           // Turn right
-      break;
-    case 0b1000:                              // Only sensor 4 detects black
-      robot.set_motor_speed(-10, 40);         // Turn left
-      break;
-    case 0b1100:                              // Sensor 3 and 4 detect black
-      robot.set_motor_speed(-5, 40);
-      break;
-    case 0b1110:                              // Sensor 2, 3 and 4 detect black
-      robot.set_motor_speed(0, 40);           // Turn left
-      break;
-    case 0b1111:                              // All detect black
-      robot.set_motor_speed(30, 30);          // This is possibly an intersection, go straight
-      break;
-    case 0b0101:                              // Sensor 1 and 3 detect black
-      robot.set_motor_speed(40, 20);
-      break;
-    case 0b1001:                              // Sensor 1 and 4 detect black
-      robot.set_motor_speed(30, 30);          // Possibly an intersection, go straight
-      break;
-    case 0b1010:                              // Sensor 2 and 4 detect black
-      robot.set_motor_speed(20, 40);
-      break;
-    case 0b1011:                              // Sensor 1, 2 and 4 detect black
-      robot.set_motor_speed(20, 20);          // Slow down for complex pattern
-      break;
-    case 0b1101:                              // Sensor 1, 3 and 4 detect black
-      robot.set_motor_speed(20, 20);          // Slow down for complex pattern
-      break;
-    default:                                  // Unexpected value
-      robot.set_motor_speed(20, 20);          // Slow down
+    default:      // Other combinations
+      robot.set_motor_speed(25, 25);
       break;
   }
 }

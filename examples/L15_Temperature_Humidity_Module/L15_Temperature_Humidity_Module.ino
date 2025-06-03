@@ -32,11 +32,13 @@
 #include <ExoNaut.h>                        //include the main ExoNaut library
 #include <ExoNaut_TempHumid.h>              //include the Temperature and Humidity library
 
+exonaut robot;                              //declare the main robot object (needed for I2C initialization)
 TempHumid th;                               //declare the TempHumid th object.  
                                             //TempHumid is the class th is the name given to the object
 
 void setup(){                               //the setup() function runs a single time
   Serial.begin(9600);                       //start the Serial connection between the robot and the computer at 9600 baud
+  robot.begin();                            //initialize the robot (this sets up I2C)
   th.begin();                               //start the th object
 }
 

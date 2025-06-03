@@ -1,43 +1,24 @@
-/*
- *ExoNaut_RGB_LED.h
- *
- *Author:    Andrew Gafford
- *Email:        agafford@spacetrek.com
- *Date:        May 20th, 2024
- *
- *This library is for controlling the Space Trek ExoNaut Robot's RGB Ultrasonic
- *distance sensor.  It provides functions to read the distance and set the RGB LEDS.
- *
- *The RGB LED module uses two Neo Pixels.  You can use the Adafruit NeoPixel library
- *if you would like to experiment with additional features and controls. The RGB LED
- *module will work on ports 2, 6 and 8 of the ExoNout robot.  If you are using the
- *Adafruit library the following table gives the port to pin mapping.
- *    __
- *    PORT Number |    Pin Number
- *        2        |        32
- *        6        |        33
- *        8        |        26
- *
- */
+#ifndef EXONAUT_RGB_LED_H
+#define EXONAUT_RGB_LED_H
 
-#ifndef EXONAUT_RGBLED_h
-#define EXONAUT_RGBLED_h
-
-#include "ExoNaut.h"
-#include <Adafruit_NeoPixel.h>
+#include "ExoNaut.h" // This includes ExoNautPixel.h, providing ExoNautPixelController and rmt_channel_t
 
 class RGB
 {
 public:
-	void begin(uint8_t port);
+	// Constructor: number of LEDs, pin for this external strip, RMT channel to use, and pixel type
+	RGB(uint8_t num_leds, int8_t pin, rmt_channel_t rmt_ch, neoPixelType type = NEO_GRB + NEO_KHZ800);
+
+	void begin();
+	void setBrightness(uint8_t b);
 	void setColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b);
-	void setColorAll(uint8_t r, uint8_t g, uint8_t b);
-	void show(void);
-	void clear(void);
+	void setColor(uint16_t n, uint32_t c); // << ADDED THIS OVERLOAD for packed uint32_t color
+	void show();
+	void clear(); // Clears buffer; call show() separately to update physical LEDs
+	uint16_t numPixels();
 
 private:
+	ExoNautPixelController _pixels_member; // Encapsulated pixel controller instance
 };
 
-extern Adafruit_NeoPixel pixels2;
-
-#endif // end __EXONAUT_RGBLED_h
+#endif // EXONAUT_RGB_LED_H
