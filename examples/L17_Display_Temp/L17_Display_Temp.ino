@@ -15,6 +15,13 @@
  *
  *
  * Commands:
+ *
+ * exonaut robot;                           //This command sets up the exonaut robot object.  exonaut is the class and robot is the name given to the object
+ *                                          //This is the object that handles all of the motor commands and the features on the CoreX controller.
+ * 
+ * robot.begin();                           //This command initializes or begins the things in the robot object.
+ *                                          //It is used once at the beginning of the program
+ *
  * TempHumid th;                            //This command sets up the TempHumid th object.  TempHumid is the class and th is the name given to the object
  *                                          //This is the object that handles getting data from the AHT10 sensor
  *
@@ -56,6 +63,7 @@
 //The display has four digits
 #define DISP_NUM_DIGITS   4                   //the display has four digits
 
+exonaut robot;                                //declare the main robot object (needed for I2C initialization)
 TempHumid th;                                 //declare the TempHumid th object.  
                                               //TempHumid is the class th is the name given to the object
 
@@ -65,6 +73,7 @@ TM1640 display(DISP_DATA_PIN, DISP_CLK_PIN, DISP_NUM_DIGITS);     //declare the 
 int displayTemp = 0;                          //an integer variable to hold the value to be displayed 
 
 void setup(){                                 //setup() runs once at the beginning of the program
+  robot.begin();
   th.begin();                                 //start the th object
 }
 
@@ -74,7 +83,7 @@ void loop(){
                                               //it is multiplied by 10 so that the first digit past the decimal becomes the ones digit
 
   display.clearDisplay();                                 //clears the display
-  display.setDisplayToDecNumber(displayTemp, _BV(2));     //digit 1 will be the decimal so put the decimal point on digit 2
+  display.setDisplayToDecNumber(displayTemp, _BV(1));     //digit 1 will be the decimal so put the decimal point on digit 2
 
   if(th.temperature < 100.0){                             //if the temperature only has two digits in front of the decimal
     display.clearDisplayDigit(0);                         //clear digit 0 so it doesn't show a zero
