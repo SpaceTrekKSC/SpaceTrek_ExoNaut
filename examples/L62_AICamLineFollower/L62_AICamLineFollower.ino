@@ -36,27 +36,37 @@
  * lineFollower.simpleFollowLine();      //This command automatically handles line following
  *                                       //It follows the line, slows down for sharp turns, and pivots if the line is lost
  */
-#include "ExoNaut.h"
-#include "ExoNaut_AICam.h"
-#include "ExoNaut_AICamLF.h"
 
-exonaut robot;
-ExoNaut_AICam camera;
-ExoNaut_AICamLF lineFollower;
+// These lines add the special instructions (libraries) our robot needs.
+#include "ExoNaut.h"          // For basic robot controls like moving.
+#include "ExoNaut_AICam.h"      // For the AI Camera's smart vision.
+#include "ExoNaut_AICamLF.h"    // For easy line following with the AI Camera.
 
+// Let's name our robot and its parts so we can talk to them in code.
+exonaut robot;                  // This is our main ExoNaut robot.
+ExoNaut_AICam camera;           // This is the robot's AI Camera.
+ExoNaut_AICamLF lineFollower;   // This is a helper that makes line following simple.
+
+// The setup() runs once when the robot turns on.
 void setup() {
-  Serial.begin(115200);
-  robot.begin();
-  delay(500);
+  Serial.begin(115200); // Lets the robot send messages to the computer.
+  robot.begin();        // Wakes up the robot.
+  delay(500);           // Waits a little bit for things to get ready.
 
+  // Wake up the line follower. It needs to know about our robot and camera.
   if (!lineFollower.begin(&robot, &camera)) {
-    Serial.println("Camera not connected!");
-    while (1);
+    // If this message appears, the camera might not be plugged in right.
+    Serial.println("Camera not connected or line follower failed to initialize!");
+    while (1); // Stop the program if the camera isn't working.
   }
 
-  lineFollower.setBaseSpeed(40); // Set speed once
+  // Set how fast the robot should try to go (0-100).
+  lineFollower.setBaseSpeed(40); 
 }
 
+// The loop() runs over and over, forever!
 void loop() {
-  lineFollower.simpleFollowLine(); // Robot drives itself!
+  // This one command tells the robot to follow the line all by itself!
+  // It will look for the line, drive along it, and try to fix mistakes.
+  lineFollower.simpleFollowLine(); 
 }

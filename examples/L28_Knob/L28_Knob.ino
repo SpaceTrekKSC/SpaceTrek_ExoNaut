@@ -20,21 +20,19 @@
  * knob.getPercent();              //Returns the current knob position as a percentage (0–100)
  */
 
+#include <ExoNaut_Knob.h> // Include the knob library
 
- #include <ExoNaut_Knob.h>
+ExoNaut_Knob knob; // Create a knob object to read the knob value
 
- ExoNaut_Knob knob;
- 
- void setup() {
-   Serial.begin(115200);
-   knob.begin(8); // Port 1 = GPIO 36
- }
- 
- void loop() {
-   int percent = knob.getPercent();
-   Serial.print("Knob: ");
-   Serial.print(percent);
-   Serial.println("%");
-   delay(20);
- }
- 
+void setup() {
+  Serial.begin(115200); // Start the Serial Monitor
+  knob.begin(8);        // Start the knob on port 8
+}
+
+void loop() {
+  int percent = knob.getPercent(); // Read knob position as a percentage
+  Serial.print("Knob: ");          // Print label
+  Serial.print(percent);           // Print the percent value
+  Serial.println("%");             // Print the percent sign and move to next line
+  delay(20);                       // Wait a short time before reading again
+}

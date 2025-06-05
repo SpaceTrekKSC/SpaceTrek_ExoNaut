@@ -16,108 +16,82 @@
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
  * Date: March 30, 2025
-
-Commands:
-exonaut robot;                              //This command creates an ExoNaut object called 'robot'
-                                           //This is the object that handles basic robot functions
-
-robot.begin();                              //This command initializes the robot systems
-                                           //It is used once at the beginning of the program
-
-robot.setColorAll(r, g, b);                 //This command sets all LEDs to the same RGB color
-                                           //Parameters are red (0-255), green (0-255), blue (0-255)
-
-robot.show();                               //This command updates the physical LED display with current color settings
-
-pinMode(pin, mode);                         //Arduino function to configure a GPIO pin
-                                           //Parameters: pin number, INPUT or OUTPUT mode
-
-digitalWrite(pin, value);                   //Arduino function to set a digital pin HIGH or LOW
-                                           //Parameters: pin number, HIGH (1) or LOW (0)
-
-delay(ms);                                  //Arduino function to pause program execution
-                                           //Parameter: time in millisecondsRetryClaude can make mistakes. Please double-check responses.
+ *
+ * Commands:
+ * exonaut robot;                              //Creates an ExoNaut object called 'robot'
+ * robot.begin();                              //Initializes the robot systems
+ * robot.setColorAll(r, g, b);                 //Sets all LEDs to an RGB color
+ * robot.show();                               //Updates LED display
+ * pinMode(pin, mode);                         //Sets pin mode (INPUT/OUTPUT)
+ * digitalWrite(pin, value);                   //Turns pin HIGH or LOW
+ * delay(ms);                                  //Waits for a specified time
  */
 
-#include "ExoNaut.h"
+#include "ExoNaut.h" // Include ExoNaut library
 
-// Pin definitions
-#define FAN_PIN_1      33   // M- controlls if the motor is on or off. LOW is on and HIGH is off
-                            // the speed can be adjusted by sending a PWM signal to the M- pin
+#define FAN_PIN_1 33  // M- pin (controls fan power)
+#define FAN_PIN_2 25  // M+ pin (controls fan direction)
 
-#define FAN_PIN_2      25   // M+ controlls the direction of the motor. 
-                            // HIGH is forward (CW)
-                            // LOW is reverse (CCW)
-
-// Create instance
-exonaut robot;
+exonaut robot; // Create robot object
 
 void setup() {
-  // Configure motor controller (fan) pins
-  pinMode(FAN_PIN_1, OUTPUT);
-  pinMode(FAN_PIN_2, OUTPUT);
+  pinMode(FAN_PIN_1, OUTPUT); // Set fan power pin as output
+  pinMode(FAN_PIN_2, OUTPUT); // Set fan direction pin as output
 
-  Serial.begin(115200);                       //Start the serial port
-  Serial.println("Simple Fan Test");          //Tell the user that this is a simple fan test
+  Serial.begin(115200); // Start Serial Monitor
+  Serial.println("Simple Fan Test"); // Print test name
 
-  robot.begin();                              //start the robot object
-  
-  // Set LEDs to blue
-  robot.setColorAll(0, 0, 255);
-  robot.show();
-  
-  // Start with fan off
-  digitalWrite(FAN_PIN_1, LOW);
-  digitalWrite(FAN_PIN_2, LOW);
-  
-  delay(2000);
+  robot.begin(); // Start robot systems
+
+  robot.setColorAll(0, 0, 255); // Set LEDs to blue
+  robot.show(); // Update LEDs
+
+  digitalWrite(FAN_PIN_1, LOW); // Set M- LOW (off)
+  digitalWrite(FAN_PIN_2, LOW); // Set M+ LOW (no direction yet)
+
+  delay(2000); // Wait 2 seconds
 }
 
 void loop() {
-  // Test forward direction
-  digitalWrite(FAN_PIN_2, HIGH);  // M+ HIGH = forward (CW)
-  digitalWrite(FAN_PIN_1, LOW);  // M- LOW = on
+  digitalWrite(FAN_PIN_2, HIGH); // M+ HIGH = forward
+  digitalWrite(FAN_PIN_1, LOW);  // M- LOW = fan on
   Serial.println("FORWARD direction");
-  robot.setColorAll(0, 255, 0);
+  robot.setColorAll(0, 255, 0); // Green = forward
   robot.show();
-  delay(3000);
-  
-  // Turn off
-  digitalWrite(FAN_PIN_1, HIGH);   // M- HIGH = off
-  Serial.println("OFF");
-  robot.setColorAll(255, 0, 0);
-  robot.show();
-  delay(3000);
+  delay(3000); // Fan runs for 3 seconds
 
-  //ramp speed from off to full speed
-  for(int i = 255; i >= 0; i--){
-    analogWrite(FAN_PIN_1, i);
-    robot.setColorAll(0, 0, (255 - i));
+  digitalWrite(FAN_PIN_1, HIGH); // M- HIGH = off
+  Serial.println("OFF");
+  robot.setColorAll(255, 0, 0); // Red = off
+  robot.show();
+  delay(3000); // Wait 3 seconds
+
+  for(int i = 255; i >= 0; i--) { // Ramp up speed
+    analogWrite(FAN_PIN_1, i); // Gradually turn on fan
+    robot.setColorAll(0, 0, (255 - i)); // Fade LED from blue to white
     robot.show();
-    delay(30);
+    delay(30); // Slow ramp
   }
-  delay(1000);
-  pinMode(FAN_PIN_1, OUTPUT);       // needed here to release the PIN from analog mode
 
-  // Turn off
-  digitalWrite(FAN_PIN_1, HIGH);   // M- HIGH = off
+  delay(1000); // Hold at full speed
+  pinMode(FAN_PIN_1, OUTPUT); // Reset pin to digital mode
+
+  digitalWrite(FAN_PIN_1, HIGH); // Fan off
   Serial.println("OFF");
-  robot.setColorAll(255, 0, 0);
+  robot.setColorAll(255, 0, 0); // Red = off
   robot.show();
   delay(3000);
-  
-  // Test reverse direction
-  digitalWrite(FAN_PIN_2, LOW);   // M+ LOW = reverse
-  digitalWrite(FAN_PIN_1, HIGH);  // M- HIGH = on         (This is opposite from forward)
+
+  digitalWrite(FAN_PIN_2, LOW); // M+ LOW = reverse
+  digitalWrite(FAN_PIN_1, HIGH); // M- HIGH = fan on (reverse)
   Serial.println("REVERSE direction");
-  robot.setColorAll(255, 0, 255);
-  robot.show();  
+  robot.setColorAll(255, 0, 255); // Purple = reverse
+  robot.show();
   delay(3000);
-  
-  // Turn off
-  digitalWrite(FAN_PIN_1, LOW);   // M- LOW = off         (this is opposite from forward)
+
+  digitalWrite(FAN_PIN_1, LOW); // M- LOW = off (reverse logic)
   Serial.println("OFF");
-  robot.setColorAll(255, 0, 0);
+  robot.setColorAll(255, 0, 0); // Red = off
   robot.show();
   delay(3000);
 }

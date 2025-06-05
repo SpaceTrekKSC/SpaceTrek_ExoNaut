@@ -1,84 +1,50 @@
-/*
- * L27_Servo_Claw.ino
- *
- * This example demonstrates how to control a robotic claw
- * attached to the ExoNaut robot using bus servos.
- * 
- * The program toggles the claw between open and closed positions
- * at regular intervals, illustrating basic servo control.
- *
- * Author: Ryan Bori
- * Email: ryan.bori@spacetrek.com
- * Date: March 31, 2025
- *
- * Commands:
- * exonaut robot;                        //This command creates the main robot instance
- *                                       //This is the object that handles all robot functions
- *
- * robot.begin();                        //This command initializes the robot systems
- *
- * robot.beginBusServo();                //This command initializes the bus servo system
- *                                       //Must be called before using any servo functions
- *
- * robot.bus_servo_set_pose(id, pos, time); //This command sets a servo to a specific position
- *                                          //Parameters: servo ID, position value, movement time in ms
- *                                          //Position value range depends on the specific servo
- *                                          //Movement time controls how fast the servo moves
- */
+#include "ExoNaut.h" // Include the main ExoNaut robot library
 
-#include "ExoNaut.h"
+exonaut robot; // Create the robot object so we can control it
 
-// Create an instance of the exonaut class
-exonaut robot;
+#define SERVO_CLAW_ID 1         // ID number for the claw's servo (usually 1)
+#define SERVO_CLAW_OPEN 0       // Position for the servo when the claw is open
+#define SERVO_CLAW_CLOSED 500   // Position for the servo when the claw is closed
+#define SERVO_MOVE_TIME 500     // Time (in ms) for the servo to reach the position
+#define CLAW_TOGGLE_DELAY 3000  // How long to wait before switching the claw (in ms)
 
-// Constants for the servo control
-#define SERVO_CLAW_ID 1         // ID of the servo controlling the claw
-#define SERVO_CLAW_OPEN 0     // Servo position for open claw
-#define SERVO_CLAW_CLOSED 500   // Servo position for closed claw
-#define SERVO_MOVE_TIME 500     // Time in ms for servo to move
-#define CLAW_TOGGLE_DELAY 3000  // Time between opening and closing in ms
-
-// State variables
-bool clawOpen = true;
-unsigned long lastToggleTime = 0;
+bool clawOpen = true;           // Keep track of whether the claw is currently open
+unsigned long lastToggleTime = 0; // Stores the last time we switched the claw
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // Start the Serial Monitor so we can see messages
   Serial.println("ExoNaut Claw Control - Using Native Library");
-  
-  // Initialize the robot
-  robot.begin();
-  
-  // Initialize the bus servo system
-  robot.beginBusServo();
-  
-  // Start with the claw open
-  openClaw();
-  
+
+  robot.begin();         // Turn on the robot's systems
+  robot.beginBusServo(); // Start the servo system
+
+  openClaw(); // Start by opening the claw
+
   Serial.println("Setup complete. Claw will now toggle between open and closed.");
 }
 
 void loop() {
+  // Check if it's been long enough to toggle the claw again
   if (millis() - lastToggleTime >= CLAW_TOGGLE_DELAY) {
     if (clawOpen) {
-      closeClaw();
-      delay(1000);
+      closeClaw();     // If it was open, close it
+      delay(1000);     // Wait a bit so we can see it move
     } else {
-      openClaw();
-      delay(1000);
+      openClaw();      // If it was closed, open it
+      delay(1000);     // Wait a bit so we can see it move
     }
-    lastToggleTime = millis();
+    lastToggleTime = millis(); // Save the time of this toggle
   }
 }
 
 void openClaw() {
-  Serial.println("Opening claw...");
-  robot.bus_servo_set_pose(SERVO_CLAW_ID, SERVO_CLAW_OPEN, SERVO_MOVE_TIME);
-  clawOpen = true;
+  Serial.println("Opening claw..."); // Print a message to the Serial Monitor
+  robot.bus_servo_set_pose(SERVO_CLAW_ID, SERVO_CLAW_OPEN, SERVO_MOVE_TIME); // Tell the servo to open
+  clawOpen = true; // Remember that the claw is now open
 }
 
 void closeClaw() {
-  Serial.println("Closing claw...");
-  robot.bus_servo_set_pose(SERVO_CLAW_ID, SERVO_CLAW_CLOSED, SERVO_MOVE_TIME);
-  clawOpen = false;
+  Serial.println("Closing claw..."); // Print a message to the Serial Monitor
+  robot.bus_servo_set_pose(SERVO_CLAW_ID, SERVO_CLAW_CLOSED, SERVO_MOVE_TIME); // Tell the servo to close
+  clawOpen = false; // Remember that the claw is now closed
 }
