@@ -53,4 +53,5 @@ void loop(){
     robot.setColor(1, 200, 0, 0);   //turn onboard pixel 1 red
   }
   robot.show();                     //update the onboard LEDs to show the new settings
+  delay(1);                         //A short delay to slow things down a little
 }

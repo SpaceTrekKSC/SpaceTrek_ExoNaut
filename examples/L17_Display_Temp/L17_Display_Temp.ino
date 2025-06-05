@@ -33,8 +33,6 @@ ExoNaut_7Segment display(6);
 int displayTemp = 0;
 
 void setup() {
-  Serial.begin(9600);
-
   robot.begin();
   th.begin();
   display.begin();
