@@ -14,10 +14,11 @@ int currentMode = APPLICATION_NONE;
 // The setup() function runs only once when the robot first turns on.
 void setup() {
   Serial.begin(115200); // Starts the communication so we can see messages on the computer.
-  delay(500);           // A brief pause to let everything stabilize.
+  delay(2500);          //give the user time to open the serial monitor
   
-  robot.begin();  // Wakes up and initializes the robot's main board.
-  camera.begin(); // Wakes up and initializes the AI camera module.
+  robot.begin();        // Wakes up and initializes the robot's main board.
+  camera.begin();       // Wakes up and initializes the AI camera module.
+  delay(500);           // A brief pause to let everything stabilize.
   
   Serial.println("ExoNaut AI Camera Demo!"); // Print a welcome message.
   printMenu();      // Call the function that displays the list of options.
@@ -65,6 +66,7 @@ void handleSelection(char selection) {
     case '7': currentMode = APPLICATION_CLASSIFICATION; break;
     case '8': currentMode = APPLICATION_FEATURELEARNING; break;
     default: // If you pick anything else...
+      Serial.println();
       Serial.println("Invalid choice! Try again.");
       printMenu(); // Show the menu again.
       return;      // Exit the function.
