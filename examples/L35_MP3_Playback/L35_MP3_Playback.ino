@@ -32,6 +32,7 @@ ExoNaut_MP3 mp3; // Create an MP3 player object
 
 void setup() {
   Serial.begin(115200); // Start the Serial Monitor
+  delay(1500);
   mp3.begin();          // Initialize the MP3 module
   Serial.println("MP3 Ready! Commands:"); // Show that we're ready
   Serial.println("p = play, a = pause, n = next, b = previous"); // List commands
@@ -53,6 +54,21 @@ void loop() {
       case 'x': mp3.maxVolume(); break;              // x = set max volume
       case 'm': mp3.mute(); break;                   // m = mute audio
       case '0'...'9': mp3.setVolumePercent((c - '0') * 10); break; // 0-9 = set volume %
+	  case '?':
+    Serial.println();
+		Serial.println(F("Commands to control playback:")); Serial.println();
+		Serial.println(F("\tp = play"));
+		Serial.println(F("\ta = pause"));
+		Serial.println(F("\tn = next track"));
+		Serial.println(F("\tb = previous track"));
+		Serial.println(F("\tu = volume up"));
+		Serial.println(F("\td = volume down"));
+		Serial.println(F("\tx = max volume"));
+		Serial.println(F("\tm = mute"));
+		Serial.println(F("\t0–9 = set volume percentage (0% to 90%)"));
+		Serial.println(F("\t? = This command list"));
+		Serial.println();
+		break;
     }
   }
 }

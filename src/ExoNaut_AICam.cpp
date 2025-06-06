@@ -92,7 +92,7 @@ void ExoNaut_AICam::setLed(bool new_state)
     writeToAddr(0x0030, &ns_b, 1);
 }
 
-/*识别到了任意人脸？*/
+//Any faces detected?
 bool ExoNaut_AICam::anyFaceDetected()
 {
     if (current == APPLICATION_FACEDETECT)
@@ -102,7 +102,7 @@ bool ExoNaut_AICam::anyFaceDetected()
     return false;
 }
 
-/*识别到的人脸总数*/
+//Total number of faces recognized
 int ExoNaut_AICam::numOfTotalFaceDetected()
 {
     if (current == APPLICATION_FACEDETECT)
@@ -163,7 +163,7 @@ bool ExoNaut_AICam::faceOfIdDetected(uint8_t id)
     return false;
 }
 
-/*返回指定ID的人脸 */
+//Returns the specific face ID
 bool ExoNaut_AICam::getFaceOfId(uint8_t id, WonderCamFaceDetectResult *p)
 {
     memset(p, 0, sizeof(WonderCamFaceDetectResult));
@@ -185,7 +185,7 @@ bool ExoNaut_AICam::getFaceOfId(uint8_t id, WonderCamFaceDetectResult *p)
     return false;
 }
 
-/*返回指定序号的没有ID的人脸*/
+//Returns the face without ID of the specified sequence number
 bool ExoNaut_AICam::getFaceOfIndex(uint8_t index, WonderCamFaceDetectResult *p)
 {
     memset(p, 0, sizeof(WonderCamFaceDetectResult));
@@ -210,7 +210,7 @@ bool ExoNaut_AICam::getFaceOfIndex(uint8_t index, WonderCamFaceDetectResult *p)
     return false;
 }
 
-/* 识别到任意物品？*/
+// Any objects detected？*/
 bool ExoNaut_AICam::anyObjDetected()
 {
     if (current != APPLICATION_OBJDETECT)
@@ -502,7 +502,7 @@ int ExoNaut_AICam::barCodeData(uint8_t *buf)
     return ret;
 }
 
-/* 是否识别到了颜色 */
+// Is a color recognized?
 bool ExoNaut_AICam::anyColorDetected(void)
 {
     if (current != APPLICATION_COLORDETECT)
@@ -512,7 +512,7 @@ bool ExoNaut_AICam::anyColorDetected(void)
     return result_summ[1] > 0 ? true : false;
 }
 
-/* 识别到的颜色种数 */
+// Number of colors recognized
 int ExoNaut_AICam::numOfColorDetected(void)
 {
     if (current != APPLICATION_COLORDETECT)
@@ -522,7 +522,7 @@ int ExoNaut_AICam::numOfColorDetected(void)
     return result_summ[1];
 }
 
-/* 是否识别到了指定颜色*/
+// Whether the specified color is recognized
 bool ExoNaut_AICam::colorIdDetected(uint8_t id)
 {
     if (current != APPLICATION_COLORDETECT)
@@ -540,7 +540,7 @@ bool ExoNaut_AICam::colorIdDetected(uint8_t id)
     return false;
 }
 
-/* 获取指定的识别到的颜色的位置数据 */
+// Get the position data of the specified recognized color
 bool ExoNaut_AICam::colorId(uint8_t id, WonderCamColorDetectResult *p)
 {
     memset(p, 0, sizeof(WonderCamColorDetectResult));
@@ -564,7 +564,7 @@ bool ExoNaut_AICam::colorId(uint8_t id, WonderCamColorDetectResult *p)
     return false;
 }
 
-/* 是否识别到了线 */
+// Is the line recognized?
 bool ExoNaut_AICam::anyLineDetected(void)
 {
     if (current != APPLICATION_LINEFOLLOW)
@@ -574,7 +574,7 @@ bool ExoNaut_AICam::anyLineDetected(void)
     return result_summ[1] > 0 ? true : false;
 }
 
-/* 识别到的线种数 */
+// Number of lines identified
 int ExoNaut_AICam::numOfLineDetected(void)
 {
     if (current != APPLICATION_LINEFOLLOW)
@@ -584,7 +584,7 @@ int ExoNaut_AICam::numOfLineDetected(void)
     return result_summ[1];
 }
 
-/* 是否识别到了指定线*/
+// Whether the specified line is recognized
 bool ExoNaut_AICam::lineIdDetected(uint8_t id)
 {
     if (current != APPLICATION_LINEFOLLOW)
@@ -602,7 +602,7 @@ bool ExoNaut_AICam::lineIdDetected(uint8_t id)
     return false;
 }
 
-/* 获取指定的识别到的线位置数据 */
+// Get the specified recognized line position data
 bool ExoNaut_AICam::lineId(uint8_t id, WonderCamLineResult *p)
 {
     memset(p, 0, sizeof(WonderCamLineResult));
@@ -794,7 +794,7 @@ float ExoNaut_AICam::numberProbOfId(uint8_t id)
     return ((float)((int)(prob_u16))) / 10000.0;
 }
 
-// 更新结果
+// Update results
 bool ExoNaut_AICam::updateResult(void)
 {
     readFromAddr(0x0035, &current, 1);

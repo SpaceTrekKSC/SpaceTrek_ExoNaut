@@ -5,7 +5,7 @@
 //Once connected to your robot via WiFi the address of your robot will be 192.168.4.1
 
 // Replace with unique SSID and password so others can't access your robot
-const char* ssid     = "SpaceTrek-ExoNaut";
+const char* ssid     = "ExoNaut";
 const char* password = "123456789";
 
 WiFiServer server(80);                          // Set web server port number to 80
@@ -33,7 +33,6 @@ void loop(){
   WiFiClient client = server.accept();                // Listen for incoming clients
 
   if(client){                                         // If a new client connects,
-    // Serial.println("New Client.");                    // print a message out in the serial port
     String currentLine = "";                          // make a String to hold incoming data from the client
     while(client.connected()){                        // loop while the client's connected
       if(client.available()){                         // if there's bytes to read from the client,
@@ -94,9 +93,5 @@ void loop(){
     }
     // Clear the header variable
     header = "";
-    // Close the connection
-    //client.stop();
-    // Serial.println("Client disconnected.");
-    // Serial.println("");
   }
 }

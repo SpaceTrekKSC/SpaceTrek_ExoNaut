@@ -5,7 +5,7 @@
  *Email:		ryan.bori@spacetrek.com
  *Date:		March 3rd, 2025
  *
- *This library is for controlling the Hiwonder MP3 module for the Space Trek ExoNaut Robot.
+ *This library is for controlling the MP3 module for the Space Trek ExoNaut Robot.
  *It provides functions for playing, pausing, and controlling MP3 files via I2C.
  *
  */
