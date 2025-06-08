@@ -51,7 +51,7 @@ ExoNaut_AICamLF lineFollower;   // This is a helper that makes line following si
 void setup() {
   Serial.begin(115200); // Lets the robot send messages to the computer.
   robot.begin();        // Wakes up the robot.
-  delay(500);           // Waits a little bit for things to get ready.
+  delay(10000);           // Waits a little bit for things to get ready.
 
   // Wake up the line follower. It needs to know about our robot and camera.
   if (!lineFollower.begin(&robot, &camera)) {
