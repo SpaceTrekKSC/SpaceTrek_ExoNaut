@@ -58,5 +58,5 @@ void setup() {                                //the setup() function runs once
 }                                             //end of the setup() function
 
 void loop() {
-  //nothing in lopp()
+  //nothing in loop()
 }
