@@ -36,7 +36,7 @@ exonaut robot;                                          //define the robot objec
 
 void setup(){                                           //the setup() function runs a single time
   robot.begin();                                        //start the robot object
-  Serial.begin(115200);                                   //start the Serial communication with the robot at 9600 baud
+  Serial.begin(115200);                                 //start the Serial communication with the robot at 115200 baud
   attachInterrupt(BUTTON_A_PIN, isrA, FALLING);         //attach button A to an interrupt routine.  Button A has a LOW voltage when pressed
   attachInterrupt(BUTTON_B_PIN, isrB, RISING);          //attach button B to an interrupt routine.  Button B has a HIGH voltage when pressed
   delay(1500);                                          //wait 1.5 seconds

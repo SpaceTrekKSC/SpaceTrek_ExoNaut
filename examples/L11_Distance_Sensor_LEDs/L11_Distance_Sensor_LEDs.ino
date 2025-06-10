@@ -18,6 +18,9 @@
  *
  * us.getDistance()                         //This command returns the distance from an object detected by the sensor in mm
  *
+ * us.color(R1, G1, B1, R2, G2, B2);        //This command sets the color of the LEDs in the distance sensor using the RGB method.
+ *                                          //If you are looking at the robot from the front LED 1 is on the left and 2 is on the right
+ *
 **************************************************/
 
 #include <ExoNaut.h>                    //include the ExoNaut library

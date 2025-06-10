@@ -13,7 +13,7 @@
 #include <ExoNaut.h>                          //Include the ExoNaut library
 
 void setup() {                                //The setup() function runs once
-  Serial.begin(115200);                         //Setup the serial communication from the ExoNaut to the computer at 9600 baud
+  Serial.begin(115200);                       //Setup the serial communication from the ExoNaut to the computer at 115200 baud
   delay(1000);                                //A one second delay to allow the program time to start
 }                                             //End of the setup() function
 
