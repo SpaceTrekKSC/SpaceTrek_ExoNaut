@@ -1,3 +1,17 @@
+/*remove the last two lines from the library.properties file
+
+precompiled=true
+ldflags=-lSpaceTrek_ExoNaut
+
+And replace with 
+
+dot_a_linkage=true
+
+Then run compile this sketch.  The replace the original content of the library file
+
+Then....
+
+*/
 #include "ExoNaut.h"
 
 // Sensor libraries
