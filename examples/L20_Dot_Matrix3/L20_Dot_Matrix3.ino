@@ -38,7 +38,7 @@ dotMatrix.scrollText(text, numScrolls, speed); //This command scrolls text acros
 
 // Create instances
 exonaut robot;
-ExoNaut_DotMatrix dotMatrix(8);
+ExoNaut_DotMatrix dotMatrix(6);
 
 void setup() {
   // Initialize serial communication
