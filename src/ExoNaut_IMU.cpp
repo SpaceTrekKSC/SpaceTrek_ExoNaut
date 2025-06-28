@@ -1,134 +1,476 @@
 /*
- * ExoNaut_IMU.h - Kid-Friendly Version
+ * ExoNaut_IMU.cpp
  *
- * Author: Andrew Gafford  
- * Date: February 26, 2025
- *
- * Simple IMU library that automatically updates and provides easy functions
- * for kids to use in their robot programs.
+ * Simple IMU library that automatically updates whenever functions are called.
+ * Kids don't need to remember to call update()!
  */
 
-#ifndef EXONAUT_IMU_H
-#define EXONAUT_IMU_H
+#include "ExoNaut_IMU.h"
+#include <math.h>
 
-#include <Arduino.h>
-#include <Wire.h>
+#define MPU6050_ADDR 0x68
+#define MPU6050_REG_PWR_MGMT_1 0x6B
+#define MPU6050_REG_ACCEL_XOUT_H 0x3B
+#define MPU6050_REG_WHO_AM_I 0x75
+#define AUTO_UPDATE_INTERVAL 20 // Update every 20ms (50Hz)
 
-// Simple orientation states for kids
-enum PitchState {
-    PITCH_LEVEL,
-    PITCH_NOSE_UP,
-    PITCH_NOSE_DOWN
-};
-
-enum RollState {
-    ROLL_FLAT,
-    ROLL_LEFT_SIDE,
-    ROLL_RIGHT_SIDE
-};
-
-enum YawState {
-    YAW_STRAIGHT,
-    YAW_TURNED_LEFT,
-    YAW_TURNED_RIGHT
-};
-
-class ExoNautIMU
+bool ExoNautIMU::start()
 {
-public:
-    // Setup functions
-    bool start();
-    void calibrate();
-    void resetDirection();  // Kid-friendly name for resetYawReference
-    
-    // ========================================
-    // RAW VALUES - Exact Numbers
-    // ========================================
-    
-    // Angles (in degrees)
-    float getPitchAngle();     // How tilted forward/back (-180 to +180)
-    float getRollAngle();      // How tilted left/right (-180 to +180)  
-    float getYawAngle();       // Which direction facing (0 to 360)
-    float getTurnAngle();      // How much turned from start (-180 to +180)
-    
-    // Motion (how fast rotating, in degrees per second)
-    float getPitchSpeed();     // How fast tilting forward/back
-    float getRollSpeed();      // How fast tilting left/right
-    float getTurnSpeed();      // How fast turning left/right
-    
-    // Forces (in g-force, 1g = gravity)
-    float getForceX();         // Side force (left/right)
-    float getForceY();         // Forward force (forward/back)
-    float getForceZ();         // Up force (up/down, usually gravity)
-    
-    // ========================================
-    // INTERPRETED VALUES - Easy to Understand
-    // ========================================
-    
-    // Simple true/false questions kids can ask
-    bool isLevel();            // Is the robot flat/level?
-    bool isNoseUp();           // Is the nose tilted up?
-    bool isNoseDown();         // Is the nose tilted down?
-    
-    bool isFlat();             // Is the robot standing upright?
-    bool isOnLeftSide();       // Is the robot on its left side?
-    bool isOnRightSide();      // Is the robot on its right side?
-    
-    bool isFacingStraight();   // Is robot facing the starting direction?
-    bool isTurnedLeft();       // Has robot turned left?
-    bool isTurnedRight();      // Has robot turned right?
-    
-    // Simple descriptive words
-    String getNoseDirection();    // Returns "up", "down", or "level"
-    String getSidePosition();     // Returns "flat", "left side", or "right side"
-    String getTurnDirection();    // Returns "straight", "left", or "right"
-    
-    // Utility functions
-    bool isShaking();             // Is the robot shaking or vibrating?
-    bool isMoving();              // Is the robot currently moving/rotating?
-    bool isUpsideDown();          // Is the robot upside down?
+    // Initialize I2C
+    Wire.begin();
+    Wire.setClock(100000);
+    delay(100);
 
-private:
-    // Internal sensor data
-    float accelX, accelY, accelZ;
-    float gyroX, gyroY, gyroZ;
-    float pitch, roll, yaw;
-    float gyroOffsetX, gyroOffsetY, gyroOffsetZ;
-    unsigned long lastUpdate;
+    // Check if MPU6050 is present
+    uint8_t whoAmI = readRegister(MPU6050_REG_WHO_AM_I);
+    if (whoAmI != 0x68 && whoAmI != 0x70)
+    {
+        Serial.print("IMU not found: 0x");
+        Serial.println(whoAmI, HEX);
+        return false;
+    }
 
-    // Orientation tracking
-    PitchState currentPitch;
-    RollState currentRoll;
-    YawState currentYaw;
-    
-    // Reference direction
-    float initialYaw;
-    bool yawInitialized;
-    
-    // Thresholds (kid-friendly defaults)
-    float pitchThreshold;
-    float rollThreshold;
-    float yawThreshold;
-    
-    // Auto-update system
-    void autoUpdate();         // Automatically called by all getter functions
-    bool needsUpdate();        // Check if update is needed
-    unsigned long lastAutoUpdate;
-    
-    // Core functions
-    void readSensorData();
-    void calculateOrientation();
-    bool writeRegister(uint8_t reg, uint8_t value);
-    uint8_t readRegister(uint8_t reg);
-    
-    // State determination
-    PitchState determinePitchState(float pitch);
-    RollState determineRollState(float roll);
-    YawState determineYawState(float relativeYaw);
-    
-    // Helper functions
-    float getRelativeYaw();
-    float constrainAngle(float angle);
-};
+    // Wake up the MPU6050
+    if (!writeRegister(MPU6050_REG_PWR_MGMT_1, 0x00))
+    {
+        Serial.println("Failed to wake up IMU");
+        return false;
+    }
+    delay(100);
 
-#endif // EXONAUT_IMU_H
+    // Configure sensor ranges for kid-friendly sensitivity
+    writeRegister(0x1C, 0x08); // ±4g accelerometer
+    writeRegister(0x1B, 0x08); // ±500°/s gyroscope
+
+    // Initialize variables
+    gyroOffsetX = gyroOffsetY = gyroOffsetZ = 0;
+    pitch = roll = yaw = 0;
+    lastUpdate = millis();
+    lastAutoUpdate = 0;
+
+    // Initialize orientation tracking
+    currentPitch = PITCH_LEVEL;
+    currentRoll = ROLL_FLAT;
+    currentYaw = YAW_STRAIGHT;
+
+    // Set kid-friendly thresholds (easier to detect)
+    pitchThreshold = 25.0; // Easier to trigger "nose up/down"
+    rollThreshold = 35.0;  // Easier to trigger "left/right side"
+    yawThreshold = 20.0;   // Easier to trigger "turned left/right"
+
+    // Initialize yaw reference
+    initialYaw = 0;
+    yawInitialized = false;
+
+    Serial.println("IMU ready for kids!");
+    return true;
+}
+
+void ExoNautIMU::calibrate()
+{
+    Serial.println("Calibrating IMU...");
+    Serial.println("Keep robot still for 3 seconds!");
+
+    // Countdown for kids
+    for (int i = 3; i > 0; i--)
+    {
+        Serial.print(i);
+        Serial.println("...");
+        delay(1000);
+    }
+
+    Serial.println("Measuring...");
+
+    const int samples = 100;
+    float sumX = 0, sumY = 0, sumZ = 0;
+
+    for (int i = 0; i < samples; i++)
+    {
+        readSensorData();
+        sumX += gyroX;
+        sumY += gyroY;
+        sumZ += gyroZ;
+        delay(10);
+
+        if (i % 25 == 0)
+            Serial.print(".");
+    }
+    Serial.println();
+
+    gyroOffsetX = sumX / samples;
+    gyroOffsetY = sumY / samples;
+    gyroOffsetZ = sumZ / samples;
+
+    // Set initial direction
+    readSensorData();
+    calculateOrientation();
+    initialYaw = yaw;
+    yawInitialized = true;
+
+    Serial.println("Calibration complete!");
+}
+
+void ExoNautIMU::resetDirection()
+{
+    Serial.println("Setting new forward direction...");
+    autoUpdate(); // Get current readings
+    initialYaw = yaw;
+    yawInitialized = true;
+    Serial.println("New direction set!");
+}
+
+// ========================================
+// AUTO-UPDATE SYSTEM
+// ========================================
+
+void ExoNautIMU::autoUpdate()
+{
+    if (needsUpdate())
+    {
+        readSensorData();
+        calculateOrientation();
+
+        // Update orientation states
+        currentPitch = determinePitchState(pitch);
+        currentRoll = determineRollState(roll);
+        currentYaw = determineYawState(getRelativeYaw());
+
+        lastAutoUpdate = millis();
+
+        // Initialize yaw reference on first update
+        if (!yawInitialized)
+        {
+            initialYaw = yaw;
+            yawInitialized = true;
+        }
+    }
+}
+
+bool ExoNautIMU::needsUpdate()
+{
+    return (millis() - lastAutoUpdate) >= AUTO_UPDATE_INTERVAL;
+}
+
+// ========================================
+// RAW VALUES - Exact Numbers
+// ========================================
+
+float ExoNautIMU::getPitchAngle()
+{
+    autoUpdate();
+    return pitch;
+}
+
+float ExoNautIMU::getRollAngle()
+{
+    autoUpdate();
+    return roll;
+}
+
+float ExoNautIMU::getYawAngle()
+{
+    autoUpdate();
+    return yaw;
+}
+
+float ExoNautIMU::getTurnAngle()
+{
+    autoUpdate();
+    return getRelativeYaw();
+}
+
+float ExoNautIMU::getPitchSpeed()
+{
+    autoUpdate();
+    return gyroX;
+}
+
+float ExoNautIMU::getRollSpeed()
+{
+    autoUpdate();
+    return gyroY;
+}
+
+float ExoNautIMU::getTurnSpeed()
+{
+    autoUpdate();
+    return gyroZ;
+}
+
+float ExoNautIMU::getForceX()
+{
+    autoUpdate();
+    return accelX;
+}
+
+float ExoNautIMU::getForceY()
+{
+    autoUpdate();
+    return accelY;
+}
+
+float ExoNautIMU::getForceZ()
+{
+    autoUpdate();
+    return accelZ;
+}
+
+// ========================================
+// INTERPRETED VALUES - Easy to Understand
+// ========================================
+
+bool ExoNautIMU::isLevel()
+{
+    autoUpdate();
+    return currentPitch == PITCH_LEVEL;
+}
+
+bool ExoNautIMU::isNoseUp()
+{
+    autoUpdate();
+    return currentPitch == PITCH_NOSE_UP;
+}
+
+bool ExoNautIMU::isNoseDown()
+{
+    autoUpdate();
+    return currentPitch == PITCH_NOSE_DOWN;
+}
+
+bool ExoNautIMU::isFlat()
+{
+    autoUpdate();
+    return currentRoll == ROLL_FLAT;
+}
+
+bool ExoNautIMU::isOnLeftSide()
+{
+    autoUpdate();
+    return currentRoll == ROLL_LEFT_SIDE;
+}
+
+bool ExoNautIMU::isOnRightSide()
+{
+    autoUpdate();
+    return currentRoll == ROLL_RIGHT_SIDE;
+}
+
+bool ExoNautIMU::isFacingStraight()
+{
+    autoUpdate();
+    return currentYaw == YAW_STRAIGHT;
+}
+
+bool ExoNautIMU::isTurnedLeft()
+{
+    autoUpdate();
+    return currentYaw == YAW_TURNED_LEFT;
+}
+
+bool ExoNautIMU::isTurnedRight()
+{
+    autoUpdate();
+    return currentYaw == YAW_TURNED_RIGHT;
+}
+
+String ExoNautIMU::getNoseDirection()
+{
+    autoUpdate();
+    switch (currentPitch)
+    {
+    case PITCH_NOSE_UP:
+        return "up";
+    case PITCH_NOSE_DOWN:
+        return "down";
+    default:
+        return "level";
+    }
+}
+
+String ExoNautIMU::getSidePosition()
+{
+    autoUpdate();
+    switch (currentRoll)
+    {
+    case ROLL_LEFT_SIDE:
+        return "left side";
+    case ROLL_RIGHT_SIDE:
+        return "right side";
+    default:
+        return "flat";
+    }
+}
+
+String ExoNautIMU::getTurnDirection()
+{
+    autoUpdate();
+    switch (currentYaw)
+    {
+    case YAW_TURNED_LEFT:
+        return "left";
+    case YAW_TURNED_RIGHT:
+        return "right";
+    default:
+        return "straight";
+    }
+}
+
+bool ExoNautIMU::isShaking()
+{
+    autoUpdate();
+    float totalForce = sqrt(accelX * accelX + accelY * accelY + accelZ * accelZ);
+    return totalForce > 1.3; // Kid-friendly threshold
+}
+
+bool ExoNautIMU::isMoving()
+{
+    autoUpdate();
+    float totalRotation = abs(gyroX) + abs(gyroY) + abs(gyroZ);
+    return totalRotation > 10; // Kid-friendly threshold
+}
+
+bool ExoNautIMU::isUpsideDown()
+{
+    autoUpdate();
+    return accelZ < -0.7; // Z acceleration pointing up instead of down
+}
+
+// ========================================
+// PRIVATE HELPER FUNCTIONS
+// ========================================
+
+void ExoNautIMU::readSensorData()
+{
+    Wire.beginTransmission(MPU6050_ADDR);
+    Wire.write(MPU6050_REG_ACCEL_XOUT_H);
+    uint8_t error = Wire.endTransmission(false);
+
+    if (error != 0)
+    {
+        return; // Silently fail for kid-friendly experience
+    }
+
+    uint8_t bytesReceived = Wire.requestFrom(MPU6050_ADDR, 14);
+    if (bytesReceived != 14)
+    {
+        return; // Silently fail
+    }
+
+    // Read accelerometer data
+    int16_t ax = (Wire.read() << 8) | Wire.read();
+    int16_t ay = (Wire.read() << 8) | Wire.read();
+    int16_t az = (Wire.read() << 8) | Wire.read();
+
+    // Skip temperature data
+    Wire.read();
+    Wire.read();
+
+    // Read gyroscope data
+    int16_t gx = (Wire.read() << 8) | Wire.read();
+    int16_t gy = (Wire.read() << 8) | Wire.read();
+    int16_t gz = (Wire.read() << 8) | Wire.read();
+
+    // Convert to meaningful units
+    accelX = ax / 8192.0;
+    accelY = ay / 8192.0;
+    accelZ = az / 8192.0;
+
+    gyroX = gx / 65.5 - gyroOffsetX;
+    gyroY = gy / 65.5 - gyroOffsetY;
+    gyroZ = -(gz / 65.5 - gyroOffsetZ); // Corrected yaw direction
+}
+
+void ExoNautIMU::calculateOrientation()
+{
+    unsigned long now = millis();
+    float dt = (now - lastUpdate) / 1000.0f;
+
+    if (dt > 0.2f)
+        dt = 0.05f;
+
+    float accPitch = atan2(accelY, sqrt(accelX * accelX + accelZ * accelZ)) * 180.0 / M_PI;
+    float accRoll = atan2(-accelX, accelZ) * 180.0 / M_PI;
+
+    const float alpha = 0.96;
+    pitch = alpha * (pitch + gyroX * dt) + (1 - alpha) * accPitch;
+    roll = alpha * (roll + gyroY * dt) + (1 - alpha) * accRoll;
+    yaw += gyroZ * dt;
+
+    // Keep yaw in 0-360 range
+    while (yaw < 0)
+        yaw += 360;
+    while (yaw >= 360)
+        yaw -= 360;
+
+    lastUpdate = now;
+}
+
+float ExoNautIMU::getRelativeYaw()
+{
+    if (!yawInitialized)
+        return 0;
+
+    float relativeYaw = yaw - initialYaw;
+    while (relativeYaw > 180)
+        relativeYaw -= 360;
+    while (relativeYaw < -180)
+        relativeYaw += 360;
+    return relativeYaw;
+}
+
+// State determination functions
+PitchState ExoNautIMU::determinePitchState(float pitch)
+{
+    if (pitch > pitchThreshold)
+        return PITCH_NOSE_UP;
+    else if (pitch < -pitchThreshold)
+        return PITCH_NOSE_DOWN;
+    else
+        return PITCH_LEVEL;
+}
+
+RollState ExoNautIMU::determineRollState(float roll)
+{
+    if (roll > rollThreshold)
+        return ROLL_RIGHT_SIDE;
+    else if (roll < -rollThreshold)
+        return ROLL_LEFT_SIDE;
+    else
+        return ROLL_FLAT;
+}
+
+YawState ExoNautIMU::determineYawState(float relativeYaw)
+{
+    if (relativeYaw > yawThreshold)
+        return YAW_TURNED_RIGHT;
+    else if (relativeYaw < -yawThreshold)
+        return YAW_TURNED_LEFT;
+    else
+        return YAW_STRAIGHT;
+}
+
+// Hardware communication
+bool ExoNautIMU::writeRegister(uint8_t reg, uint8_t value)
+{
+    Wire.beginTransmission(MPU6050_ADDR);
+    Wire.write(reg);
+    Wire.write(value);
+    uint8_t error = Wire.endTransmission();
+    return (error == 0);
+}
+
+uint8_t ExoNautIMU::readRegister(uint8_t reg)
+{
+    Wire.beginTransmission(MPU6050_ADDR);
+    Wire.write(reg);
+    uint8_t error = Wire.endTransmission(false);
+
+    if (error != 0)
+        return 0xFF;
+
+    uint8_t bytesReceived = Wire.requestFrom(MPU6050_ADDR, 1);
+    if (bytesReceived != 1)
+        return 0xFF;
+
+    return Wire.read();
+}
