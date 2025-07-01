@@ -29,6 +29,10 @@
  *                                          //because the line is black a 0 indicates when the sensor is over the line
  *                                          //remember, a 0 is false and anything not zero, such as a 1, is true
  *
+ * Sensor Sensitivity Adjustment (Facing the front of the bot):
+ * - Turn the small screw right (clockwise) to increase sensitivity.
+ * - Turn it left (counter-clockwise) to decrease sensitivity.
+ * - Adjust until the sensor clearly detects the line without flickering.
  *
  * Line follower sensor numbers (viewed from top)
  * 
