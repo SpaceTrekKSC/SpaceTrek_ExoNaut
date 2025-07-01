@@ -31,6 +31,13 @@
  * lf.CH4                                   //1 (true) means it is over black
  *
  *
+ * Sensor Sensitivity Adjustment (Facing the front of the bot):
+ * - Turn the small screw right (clockwise) to increase sensitivity.
+ * - Turn it left (counter-clockwise) to decrease sensitivity.
+ * - Adjust until the sensor clearly detects the line without flickering.
+ *
+ *
+ *
  * Line follower sensor numbers (viewed from top)
  * 
  *     __1__2__3__4___
