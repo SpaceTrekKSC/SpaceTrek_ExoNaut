@@ -52,6 +52,10 @@ void setup() {
   // Start the display
   display.begin();
   
+  // Show Decmial number 
+  display.showDecimal(12.34);
+  delay(2000);
+
   // Show a welcome message
   display.showText("HELO");       // "HELLO" but only 4 characters fit
   delay(2000);                    // Wait 2 seconds

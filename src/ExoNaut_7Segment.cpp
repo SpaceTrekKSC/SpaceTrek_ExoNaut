@@ -20,7 +20,7 @@
      0b01111111, // 8
      0b01101111  // 9
  };
- 
+
  // 7-segment patterns for letters A-Z (where possible)
  const uint8_t ExoNaut_7Segment::LETTER_PATTERNS[26] = {
      0b01110111, // A
@@ -50,47 +50,47 @@
      0b01101110, // y
      0b01011011  // Z (same as 2)
  };
- 
+
  ExoNaut_7Segment::ExoNaut_7Segment(uint8_t port)
  {
      _port = isValidPort(port) ? port : 6; // Default to port 6 if invalid
      setPins(_port);
-     
+
      // Initialize display buffer
      for (int i = 0; i < 4; i++) {
          _displayBuffer[i] = 0;
      }
  }
- 
+
  void ExoNaut_7Segment::begin()
  {
      // Set pin modes
      pinMode(_dataPin, OUTPUT);
      pinMode(_clkPin, OUTPUT);
-     
+
      // Initialize pins to high (TM1640 default state)
      digitalWrite(_clkPin, HIGH);
      digitalWrite(_dataPin, HIGH);
-     
+
      // Initialize display using TM16xx commands
-     sendCommand(TM1640_CMD_DATA_SET);           // Data command setting (auto increment)
+     sendCommand(TM1640_CMD_DATA_SET);          // Data command setting (auto increment)
      sendCommand(TM1640_CMD_DISPLAY_CTRL | 0x07); // Display on, max brightness
-     
+
      // Clear the display
      clear();
      delay(100);
  }
- 
+
  void ExoNaut_7Segment::showNumber(int number)
  {
      // Limit to 4 digits (0-9999)
      number = (number < 0) ? 0 : ((number > 9999) ? 9999 : number);
-     
+
      // Clear buffer
      for (int i = 0; i < 4; i++) {
          _displayBuffer[i] = 0;
      }
-     
+
      // Handle special case of 0
      if (number == 0) {
          _displayBuffer[3] = DIGIT_PATTERNS[0];
@@ -104,29 +104,29 @@
              pos--;
          }
      }
-     
+
      updateDisplay();
  }
- 
+
  void ExoNaut_7Segment::showText(String text)
  {
      // Clear buffer
      for (int i = 0; i < 4; i++) {
          _displayBuffer[i] = 0;
      }
-     
+
      // Convert text to uppercase and limit to 4 characters
      text.toUpperCase();
-     int len = (text.length() > 4) ? 4 : text.length(); // Fix type mismatch
-     
+     int len = (text.length() > 4) ? 4 : text.length();
+
      // Encode characters
      for (int i = 0; i < len; i++) {
          _displayBuffer[i] = encodeChar(text[i]);
      }
-     
+
      updateDisplay();
  }
- 
+
  void ExoNaut_7Segment::clear()
  {
      for (int i = 0; i < 4; i++) {
@@ -134,12 +134,12 @@
      }
      updateDisplay();
  }
- 
+
  void ExoNaut_7Segment::countUp(int startNum, int endNum, int delayMs)
  {
      startNum = (startNum < 0) ? 0 : ((startNum > 9999) ? 9999 : startNum);
      endNum = (endNum < 0) ? 0 : ((endNum > 9999) ? 9999 : endNum);
- 
+
      if (startNum <= endNum) {
          for (int i = startNum; i <= endNum; i++) {
              showNumber(i);
@@ -147,12 +147,12 @@
          }
      }
  }
- 
+
  void ExoNaut_7Segment::countDown(int startNum, int endNum, int delayMs)
  {
      startNum = (startNum < 0) ? 0 : ((startNum > 9999) ? 9999 : startNum);
      endNum = (endNum < 0) ? 0 : ((endNum > 9999) ? 9999 : endNum);
- 
+
      if (startNum >= endNum) {
          for (int i = startNum; i >= endNum; i--) {
              showNumber(i);
@@ -160,7 +160,7 @@
          }
      }
  }
- 
+
  void ExoNaut_7Segment::blink(int number, int times, int delayMs)
  {
      for (int i = 0; i < times; i++) {
@@ -172,7 +172,7 @@
      // Show the number one final time
      showNumber(number);
  }
- 
+
  void ExoNaut_7Segment::scroll(String text, int delayMs)
  {
      if (text.length() <= 4) {
@@ -180,10 +180,10 @@
          showText(text);
          return;
      }
- 
+
      // Add spaces to make scrolling smoother
      text = "    " + text + "    ";
- 
+
      // Scroll through the text
      for (int i = 0; i <= text.length() - 4; i++) {
          String segment = text.substring(i, i + 4);
@@ -191,42 +191,78 @@
          delay(delayMs);
      }
  }
- 
+
  void ExoNaut_7Segment::showDigit(int digit, int position)
  {
      digit = (digit < 0) ? 0 : ((digit > 9) ? 9 : digit);
      position = (position < 0) ? 0 : ((position > 3) ? 3 : position);
- 
+
      _displayBuffer[position] = DIGIT_PATTERNS[digit];
      updateDisplay();
  }
- 
+
  void ExoNaut_7Segment::clearDigit(int position)
  {
      position = (position < 0) ? 0 : ((position > 3) ? 3 : position);
      _displayBuffer[position] = 0;
      updateDisplay();
  }
- 
+
  void ExoNaut_7Segment::showDecimal(int number, int decimalPlace)
  {
      number = (number < 0) ? 0 : ((number > 9999) ? 9999 : number);
      decimalPlace = (decimalPlace < 0) ? 0 : ((decimalPlace > 3) ? 3 : decimalPlace);
- 
+
      showNumber(number);
-     
+
      // Add decimal point to specified position
      if (decimalPlace < 4) {
          _displayBuffer[decimalPlace] |= 0x80; // Set DP bit
          updateDisplay();
      }
  }
- 
+
+ // ✅ NEW: Function to display a floating-point number
+ void ExoNaut_7Segment::showDecimal(float number)
+ {
+     number = abs(number);
+     int integerPart = (int)number;
+     int numToDisplay = 0;
+     int decimalPosition = -1;
+
+     if (integerPart >= 10000) {
+         showText("Err"); // Number too large
+         return;
+     }
+
+     // Adjust precision based on the integer part's size to fit 4 digits
+     if (integerPart >= 1000) {      // e.g., 1234.5 -> show "1234"
+         numToDisplay = integerPart;
+         decimalPosition = -1; // No decimal
+     } else if (integerPart >= 100) { // e.g., 123.45 -> show "123.4"
+         numToDisplay = (int)(number * 10);
+         decimalPosition = 2;
+     } else if (integerPart >= 10) {  // e.g., 12.345 -> show "12.34"
+         numToDisplay = (int)(number * 100);
+         decimalPosition = 1;
+     } else {                         // e.g., 1.2345 -> show "1.234"
+         numToDisplay = (int)(number * 1000);
+         decimalPosition = 0;
+     }
+
+     // Use the existing integer-based showDecimal function
+     if (decimalPosition == -1) {
+         showNumber(numToDisplay);
+     } else {
+         showDecimal(numToDisplay, decimalPosition);
+     }
+ }
+
  bool ExoNaut_7Segment::isValidPort(uint8_t port)
  {
      return (port == 6 || port == 8);
  }
- 
+
  void ExoNaut_7Segment::setPins(uint8_t port)
  {
      switch (port) {
@@ -245,7 +281,7 @@
          break;
      }
  }
- 
+
  void ExoNaut_7Segment::startTransmission()
  {
      // TM1640 start condition: when CLK is high, DIN becomes low from high
@@ -253,7 +289,7 @@
      digitalWrite(_clkPin, LOW);
      bitDelay();
  }
- 
+
  void ExoNaut_7Segment::endTransmission()
  {
      // TM1640 stop condition: when CLK is high, DIN becomes high from low
@@ -261,10 +297,10 @@
      digitalWrite(_dataPin, HIGH);
      bitDelay();
  }
- 
+
  void ExoNaut_7Segment::sendByte(uint8_t data)
  {
-     // Send 8 bits LSB first (matching TM16xx::send method)
+     // Send 8 bits LSB first
      for (int i = 0; i < 8; i++) {
          digitalWrite(_clkPin, LOW);
          bitDelay();
@@ -274,36 +310,35 @@
          digitalWrite(_clkPin, HIGH);
          bitDelay();
      }
-     bitDelay(); // TM1638 specifies a Twait between bytes of minimal 1us
-     
-     // TM1640 specific: wants data and clock to be low after sending data
-     digitalWrite(_clkPin, LOW);    // first clock low
-     digitalWrite(_dataPin, LOW);   // then data low
+     bitDelay();
+
+     digitalWrite(_clkPin, LOW);
+     digitalWrite(_dataPin, LOW);
      bitDelay();
  }
- 
+
  void ExoNaut_7Segment::sendCommand(uint8_t cmd)
  {
      startTransmission();
      sendByte(cmd);
      endTransmission();
  }
- 
+
  void ExoNaut_7Segment::sendData(uint8_t addr, uint8_t data)
  {
      sendCommand(TM1640_CMD_DATA_FIXED); // Fixed addressing mode
-     
+
      startTransmission();
      sendByte(TM1640_CMD_ADDR_SET | addr);
      sendByte(data);
      endTransmission();
  }
- 
+
  void ExoNaut_7Segment::updateDisplay()
  {
      // Use auto increment addressing to send all 4 digits at once
      sendCommand(TM1640_CMD_DATA_SET); // Auto increment mode
-     
+
      startTransmission();
      sendByte(TM1640_CMD_ADDR_SET | 0); // Start at address 0
      for (int i = 0; i < 4; i++) {
@@ -311,14 +346,13 @@
      }
      endTransmission();
  }
- 
+
  void ExoNaut_7Segment::setBrightness(uint8_t brightness)
  {
      brightness = (brightness > 7) ? 7 : brightness;
      sendCommand(TM1640_CMD_DISPLAY_CTRL | brightness);
  }
- 
- // Add bit delay function matching TM16xx implementation
+
  void ExoNaut_7Segment::bitDelay()
  {
      // Add delay for fast MCUs (like ESP32)
@@ -326,7 +360,7 @@
          delayMicroseconds(1);
      #endif
  }
- 
+
  uint8_t ExoNaut_7Segment::encodeDigit(uint8_t digit)
  {
      if (digit <= 9) {
@@ -334,7 +368,7 @@
      }
      return 0; // Blank for invalid digit
  }
- 
+
  uint8_t ExoNaut_7Segment::encodeChar(char c)
  {
      if (c >= '0' && c <= '9') {
