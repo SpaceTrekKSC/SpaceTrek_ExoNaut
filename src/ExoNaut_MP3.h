@@ -39,11 +39,17 @@
      void maxVolume(void);
      void mute(void);
      void setVolumePercent(uint8_t percent); // 0 to 100
+
+     // --- New Integrated Seeking Function ---
+     void goToTrack(uint8_t targetTrack);
  
  private:
      bool sendCommand(uint8_t cmd);
      bool sendCommandWithParam(uint8_t cmd, uint8_t param);
      uint8_t volume = 20; // Start with medium volume
+     
+     // --- New State-Tracking Variable ---
+     int currentTrack = 1; 
  };
  
  #endif // __EXONAUT_MP3_H

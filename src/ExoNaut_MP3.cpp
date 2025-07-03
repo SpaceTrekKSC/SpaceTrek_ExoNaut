@@ -17,6 +17,7 @@
      Wire.begin();
      delay(200);           // Wait for MP3 module to boot
      setVolumePercent(66); // Set to ~20 out of 30
+     currentTrack = 1;     // Assume we start at track 1
  }
  
  bool ExoNaut_MP3::sendCommand(uint8_t cmd)
@@ -47,11 +48,35 @@
  void ExoNaut_MP3::next()
  {
      sendCommand(MP3_NEXT_ADDR);
+     currentTrack++; // Update our internal tracker
  }
  
  void ExoNaut_MP3::previous()
  {
      sendCommand(MP3_PREV_ADDR);
+     if (currentTrack > 1) currentTrack--; // Update our internal tracker
+ }
+
+ void ExoNaut_MP3::goToTrack(uint8_t targetTrack)
+ {
+    if (targetTrack == 0) return; // Ignore invalid track numbers
+
+    int steps = targetTrack - currentTrack;
+
+    if (steps > 0) {
+        // If the target is ahead, press 'next'
+        for (int i = 0; i < steps; i++) {
+            next();
+            delay(50); // Small delay between commands helps the module keep up
+        }
+    } else if (steps < 0) {
+        // If the target is behind, press 'previous'
+        for (int i = 0; i < -steps; i++) {
+            previous();
+            delay(50);
+        }
+    }
+    // If steps is 0, we're already on the right track, so we do nothing.
  }
  
  void ExoNaut_MP3::volumeUp()
