@@ -22,6 +22,8 @@
  *
  * display.showNumber(number);                        // Show any number up to 9999
  *
+ * display.showDecimal(number)                        // Show any 4 digit float value
+ *
  * display.showDigit(number, position);               // Show 1 number at a spot (0 = left, 3 = right)
  *
  * display.countUp(start, end, delay);                // Count up from one number to another
