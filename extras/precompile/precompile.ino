@@ -7,12 +7,13 @@ And replace with
 
 dot_a_linkage=true
 
-Then run compile this sketch.  The replace the original content of the library file
+Then run compile this sketch.  Then replace the original content of the library file
 
 Then....
 
 */
 #include "ExoNaut.h"
+#include "ExoNautPixel.h"
 
 // Sensor libraries
 #include "ExoNaut_AICam.h"           // AI Camera for object/face detection

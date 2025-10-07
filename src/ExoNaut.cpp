@@ -20,6 +20,7 @@ bool action_finish = true;
 uart2_obj_t uart2_obj = {
 	.initilized = false,
 	.volt = -1,
+	.version = "",
 };
 
 ir_obj_t ir = {

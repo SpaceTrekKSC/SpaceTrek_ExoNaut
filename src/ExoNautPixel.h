@@ -4,6 +4,11 @@
 #include <Arduino.h>
 #if defined(ESP32)
 #include "driver/rmt.h"
+//#include "driver/rmt_legacy.h"
+//#include "driver/rmt_types.h"
+//#include "driver/rmt_tx.h"
+//#include "driver/rmt_rx.h"
+//#include "driver/rmt_common.h"
 #include "esp_idf_version.h"
 #endif
 

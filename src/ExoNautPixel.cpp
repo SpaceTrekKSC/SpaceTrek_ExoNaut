@@ -260,5 +260,5 @@ void ExoNautPixelController::show(void)
     endTime = micros();
 }
 #else
-void ExoNautPixelController::show(void) { /* ... as before ... */ }
+void ExoNautPixelController::show(void) {}			// ... as before 
 #endif

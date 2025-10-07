@@ -87,7 +87,6 @@ bool ExoNaut_AICam::changeFunc(uint8_t new_func)
 
 void ExoNaut_AICam::setLed(bool new_state)
 {
-    byte buf[3] = {0x30, 0x00, 0x00};
     byte ns_b = new_state ? 1 : 0;
     writeToAddr(0x0030, &ns_b, 1);
 }

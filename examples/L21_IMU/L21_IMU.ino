@@ -1,151 +1,94 @@
 /*
- * L31_IMU.ino
+ * L21_IMU.ino
+ *
+ * This example creates an interactive serial monitor interface
+ * to display and control the ExoNaut's MPU6050 accelerometer
+ * and gyroscope sensor using the ExoNautIMU class.
  * 
- * A fun demo that shows off all the cool things the ExoNaut IMU can do!
- * It prints angles, motion, and simple answers like "Is it shaking?"
- * and uses lights to give quick feedback.
- * 
- * Must be plugged into port 3, 4, 5, or 9.
- * 
+ * The program displays accelerometer, gyroscope, and orientation
+ * data, and allows gyroscope calibration and mode switching via
+ * the serial monitor.
+ *
+ * Must be plugged into ports 9, 5, 4, 3
+ *
  * Author: Ryan Bori
  * Email: ryan.bori@spacetrek.com
- * Date: June 7, 2025
+ * Date: March 30, 2025
  *
  * Commands:
- * imu.start();              // Turn on the IMU
- * imu.calibrate();          // Calibrate gyro (must be still!)
- * imu.resetDirection();     // Set the new "straight ahead" direction
+ * ExoNautIMU imu;                              //Creates an IMU object called 'imu'
+ *                                            //Handles reading and processing sensor data
  *
- * Raw data:
- * imu.getPitchAngle(), imu.getRollAngle(), imu.getYawAngle()
- * imu.getPitchSpeed(), imu.getRollSpeed(), imu.getTurnSpeed()
- * imu.getForceX(), imu.getForceY(), imu.getForceZ()
+ * imu.start();                                 //Initializes the MPU6050 sensor
+ *                                            //Returns true if successful, false otherwise
  *
- * Easy answers:
- * imu.isLevel(), imu.isShaking(), imu.isUpsideDown(), etc.
- * imu.getNoseDirection(), imu.getSidePosition(), imu.getTurnDirection()
+ * imu.calibrate();                             //Calibrates the gyroscope
+ *                                            //Robot must remain still during this process
+ *
+ * imu.update();                                //Reads new data from the IMU
+ *                                            //Should be called frequently in loop()
+ *
+ * imu.getAcceleration();                       //imu.getAccelX(), getAccelY(), getAccelZ()
+ *                                            //Returns acceleration in g for each axis
+ *
+ * imu.getRotation();                           //imu.getGyroX(), getGyroY(), getGyroZ()
+ *                                            //Returns angular velocity in deg/sec
+ *
+ * imu.getOrientation();                        //imu.getPitch(), getRoll(), getYaw()
+ *                                            //Returns current orientation in degrees
+ *
+ * Serial commands:
+ *   'c' - Calibrate the gyroscope
+ *   'm' - Switch mode (0: Orientation, 1: Accel, 2: Gyro)
  */
 
-#include <ExoNaut.h>         // Load the ExoNaut robot library
-#include <ExoNaut_IMU.h>     // Load the IMU (sensor) library
-
-exonaut robot;               // Create the robot object (so we can use motors/lights)
-ExoNautIMU imu;              // Create the IMU object (so we can read motion and angles)
-
-void setup() {
-  Serial.begin(115200);     // Start the Serial Monitor so we can see messages
-  robot.begin();            // Turn on the robot systems (motors, lights, etc.)
-
-  if (imu.start()) {        // Try to start the IMU sensor
-    Serial.println("IMU ready! Press 'c' to calibrate, 'r' to reset direction.");
-  } else {
-    Serial.println("IMU not detected! Must be plugged into Port 3, 4, 5, or 9.");
-  }
-}
-
-void loop() {
-  // === Check for User Input from Serial Monitor ===
-  if (Serial.available()) {       // If a key was typed in the Serial Monitor
-    char c = Serial.read();       // Read the typed key
-    if (c == 'c') {               // If it was 'c', start calibration
-      imu.calibrate();           // This tells the IMU what "still" looks like
-    } else if (c == 'r') {        // If it was 'r', reset the direction
-      imu.resetDirection();      // This makes the current facing direction = "straight"
-    }
-  }
-
-  // === Read Angles ===
-  float pitch = imu.getPitchAngle();  // Tilt forward/backward
-  float roll = imu.getRollAngle();    // Tilt left/right
-  float yaw = imu.getYawAngle();      // Compass direction
-  float turn = imu.getTurnAngle();    // How far we turned from the start
-
-  // === Read Motion Speeds ===
-  float pitchSpeed = imu.getPitchSpeed();  // Speed of pitch rotation
-  float rollSpeed  = imu.getRollSpeed();   // Speed of roll rotation
-  float turnSpeed  = imu.getTurnSpeed();   // Speed of turning left/right
-
-  // === Read Forces ===
-  float forceX = imu.getForceX();     // Force side to side
-  float forceY = imu.getForceY();     // Force forward/backward
-  float forceZ = imu.getForceZ();     // Force up/down (gravity)
-
-  // === Read Interpreted Answers ===
-  String nose = imu.getNoseDirection();     // "up", "down", or "level"
-  String side = imu.getSidePosition();      // "left side", "right side", or "flat"
-  String turnDir = imu.getTurnDirection();  // "left", "right", or "straight"
-
-  // === Print All Info to Serial Monitor ===
-  Serial.println("=== ExoNaut IMU Status ===");
-
-  Serial.print("Pitch: ");
-  Serial.print(pitch);                 // Print pitch angle
-  Serial.print("° (");
-  Serial.print(nose);                  // Print nose direction (word)
-  Serial.println(")");
-
-  Serial.print("Roll : ");
-  Serial.print(roll);                  // Print roll angle
-  Serial.print("° (");
-  Serial.print(side);                  // Print side direction (word)
-  Serial.println(")");
-
-  Serial.print("Yaw  : ");
-  Serial.print(yaw);                   // Print yaw (compass) angle
-  Serial.print("° (");
-  Serial.print(turnDir);               // Print turn direction (word)
-  Serial.println(")");
-
-  Serial.print("Turn : ");
-  Serial.print(turn);                  // Print how much we turned from start
-  Serial.println("° from start");
-
-  Serial.print("Motion Speeds (°/s): Pitch=");
-  Serial.print(pitchSpeed);           // Print speed of pitch rotation
-  Serial.print(" Roll=");
-  Serial.print(rollSpeed);            // Print speed of roll
-  Serial.print(" Turn=");
-  Serial.println(turnSpeed);          // Print speed of turn
-
-  Serial.print("Forces (g): X=");
-  Serial.print(forceX);               // Force left/right
-  Serial.print(" Y=");
-  Serial.print(forceY);               // Force forward/back
-  Serial.print(" Z=");
-  Serial.println(forceZ);             // Force up/down
-
-  // === Print Yes/No Answers ===
-  if (imu.isMoving()) {               // Is the robot rotating?
-    Serial.print("Moving? Yes");
-  } else {
-    Serial.print("Moving? No");
-  }
-
-  if (imu.isShaking()) {              // Is the robot vibrating?
-    Serial.print(" | Shaking? Yes");
-  } else {
-    Serial.print(" | Shaking? No");
-  }
-
-  if (imu.isUpsideDown()) {           // Is the robot flipped over?
-    Serial.println(" | Upside Down? Yes");
-  } else {
-    Serial.println(" | Upside Down? No");
-  }
-
-  // === LED Feedback Based on IMU State ===
-  if (imu.isUpsideDown()) {
-    robot.setColorAll(255, 0, 255);     // Purple = Upside down
-  } else if (imu.isShaking()) {
-    robot.setColorAll(255, 165, 0);     // Orange = Shaking
-  } else if (imu.isMoving()) {
-    robot.setColorAll(0, 255, 255);     // Cyan = Moving
-  } else if (imu.isLevel()) {
-    robot.setColorAll(0, 255, 0);       // Green = Level and calm
-  } else {
-    robot.setColorAll(255, 255, 0);     // Yellow = Tilted
-  }
-
-  robot.show();                         // Show the LED color update
-  delay(400);                           // Wait a little before repeating everything
-}
+ #include <Wire.h>
+ #include "ExoNaut_IMU.h"
+ 
+ ExoNautIMU imu;
+ int mode = 0;
+ 
+ void setup() {
+   Serial.begin(115200);
+   if (imu.start()) {
+     Serial.println("IMU started successfully!");
+     Serial.println("Send 'c' to calibrate, 'm' to switch mode (0: orientation, 1: accel, 2: gyro)");
+   } else {
+     Serial.println("Failed to start IMU.");
+   }
+ }
+ 
+ void loop() {
+   if (Serial.available()) {
+     char command = Serial.read();
+     if (command == 'c') {
+       Serial.println("Calibrating gyroscope, keep the board still...");
+       imu.calibrate();
+       Serial.println("Calibration complete!");
+     } else if (command == 'm') {
+       mode = (mode + 1) % 3;
+       Serial.print("Switched to mode: ");
+       Serial.println(mode);
+     }
+   }
+ 
+   imu.update();
+ 
+   if (mode == 0) {
+     Serial.print("Pitch: "); Serial.print(imu.getPitch());
+     Serial.print(" Roll: "); Serial.print(imu.getRoll());
+     Serial.print(" Yaw: "); Serial.println(imu.getYaw());
+   } else if (mode == 1) {
+     Serial.print("Accel X: "); Serial.print(imu.getAccelX());
+     Serial.print(" Y: "); Serial.print(imu.getAccelY());
+     Serial.print(" Z: "); Serial.println(imu.getAccelZ());
+   } else if (mode == 2) {
+     Serial.print("Gyro X: "); Serial.print(imu.getGyroX());
+     Serial.print(" Y: "); Serial.print(imu.getGyroY());
+     Serial.print(" Z: "); Serial.println(imu.getGyroZ());
+   }
+ 
+   delay(500);
+ }
+ 
+ 
